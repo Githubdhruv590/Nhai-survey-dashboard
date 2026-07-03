@@ -363,14 +363,27 @@ def compile_master_data(sheets_dict: Dict[str, pd.DataFrame]) -> Tuple[pd.DataFr
             from backend.services.week_engine import parse_date, get_week_boundaries
             from datetime import datetime
             
-            # Calculate active year from the dataset dynamically to avoid hardcoding values
+            # Calculate active year, month, and week from the dataset dynamically to avoid hardcoding values
             valid_dates = pd.to_datetime(df_merged["Scheduled Survey Date"], errors='coerce', format='mixed', dayfirst=True).dropna()
-            active_year = int(valid_dates.dt.year.mode()[0]) if not valid_dates.empty else datetime.now().year
+            
+            if not valid_dates.empty:
+                active_year = int(valid_dates.dt.year.mode()[0])
+                active_month_num = int(valid_dates.dt.month.mode()[0])
+                # Find a sample date that matches the mode month to extract week boundaries
+                sample_dt = valid_dates[valid_dates.dt.month == active_month_num].iloc[0].to_pydatetime()
+            else:
+                active_year = datetime.now().year
+                sample_dt = datetime.now()
+                
+            active_monday, active_sunday = get_week_boundaries(sample_dt)
+            active_mon_str = active_monday.strftime("%Y-%m-%d")
+            active_label = f"{active_monday.strftime('%d %b %Y')} ({active_monday.strftime('%d %b')} - {active_sunday.strftime('%d %b')})"
+            active_month_str = sample_dt.strftime("%B")
             
             def compute_date_hierarchy(val):
                 dt = parse_date(val)
                 if not dt:
-                    return "Unknown", "Unknown", active_year, "Unknown"
+                    return active_mon_str, active_label, active_year, active_month_str
                 monday, sunday = get_week_boundaries(dt)
                 
                 mon_str = monday.strftime("%Y-%m-%d")

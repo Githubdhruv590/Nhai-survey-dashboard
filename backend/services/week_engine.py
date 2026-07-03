@@ -10,12 +10,32 @@ def parse_date(val) -> Optional[datetime]:
     Robustly parses dates of multiple formats (e.g., YYYY-MM-DD, DD/MM/YYYY, etc.) 
     into a datetime object. Returns None if invalid or empty.
     """
-    if pd.isna(val) or not str(val).strip():
+    if pd.isna(val) or val is None:
+        print("UNPARSEABLE DATE:", repr(val))
         return None
         
+    # Handle actual datetime or Timestamp objects
+    if isinstance(val, datetime):
+        return val
+    if hasattr(val, "to_pydatetime"):
+        return val.to_pydatetime()
+        
     val_str = str(val).strip()
+    if not val_str or val_str.lower() in ['nan', 'nat', 'none', 'unknown']:
+        print("UNPARSEABLE DATE:", repr(val))
+        return None
+        
+    # Handle Excel numeric dates
+    try:
+        num = float(val)
+        if num > 10000: # Typical excel date range
+            # Excel dates are days since 1899-12-30
+            return (datetime(1899, 12, 30) + timedelta(days=num))
+    except ValueError:
+        pass
+        
     # Try different formats
-    for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%m/%d/%Y", "%d-%m-%Y", "%Y/%m/%d", "%d %b %Y", "%d.%m.%Y", "%d.%m.%y"):
+    for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%m/%d/%Y", "%d-%m-%Y", "%Y/%m/%d", "%d %b %Y", "%d-%b-%Y", "%d.%m.%Y", "%d.%m.%y", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%S.%f", "%Y-%m-%d %H:%M:%S"):
         try:
             return datetime.strptime(val_str, fmt)
         except ValueError:
@@ -23,11 +43,13 @@ def parse_date(val) -> Optional[datetime]:
             
     # Try generic pandas conversion as last resort
     try:
-        ts = pd.to_datetime(val_str, dayfirst=True)
+        ts = pd.to_datetime(val_str, dayfirst=True, format='mixed', errors='coerce')
         if pd.isna(ts):
+            print("UNPARSEABLE DATE:", repr(val))
             return None
         return ts.to_pydatetime()
     except Exception:
+        print("UNPARSEABLE DATE:", repr(val))
         return None
 
 def get_week_boundaries(dt: datetime) -> Tuple[datetime, datetime]:
