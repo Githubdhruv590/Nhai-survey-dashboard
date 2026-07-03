@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-nhai-blue: #0A2540;
+  --color-nhai-blue-dark: #002244;
+  --color-nhai-blue-light: #1E3E62;
+  --color-nhai-blue-subtle: #F4F7FA;
+  --color-nhai-orange: #F26A36;
+  --color-nhai-orange-dark: #D94F1A;
+  --color-nhai-orange-light: #FA8253;
+  --color-nhai-orange-subtle: #FFF7F2;
+  
+  --font-sans: 'Inter', 'Outfit', sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-800 font-sans antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight text-slate-900;
+    font-family: 'Outfit', 'Inter', sans-serif;
+  }
+}
+
+/* Custom CSS utilities and keyframes */
+
+/* Fade-in & slide-up animation for cards */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Card hover scaling & shadow */
+.card-hover {
+  @apply transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-200/80;
+}
+
+/* Custom scrollbars for clean design */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-100 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full hover:bg-slate-400 transition-colors;
+}
+
+/* Glassmorphism elements */
+.glass-panel {
+  @apply bg-white/95 backdrop-blur-md border border-slate-100/80 shadow-sm;
+}
+
+/* Print optimizations for PDF generation */
+@media print {
+  body {
+    background-color: white !important;
+    color: #0f172a !important;
+    font-size: 10pt;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-full {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  
+  .print-card {
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
+    background: white !important;
+    page-break-inside: avoid;
+    margin-bottom: 1.5rem !important;
+  }
+  
+  .print-page-break {
+    page-break-before: always;
+  }
+  
+  /* Force charts and graphs to print cleanly */
+  svg {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
