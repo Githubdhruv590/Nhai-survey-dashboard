@@ -63,7 +63,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ data, isLoadin
         <div className="lg:col-span-5 bg-white border border-slate-200 rounded-xl p-5 shadow-sm print-card flex flex-col justify-between h-80">
           <div className="flex items-center space-x-2 border-b border-slate-100 pb-2 mb-2 no-print">
             <PieIcon className="h-4.5 w-4.5 text-nhai-blue" />
-            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Completion Ratio</h3>
+            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider"> Survey Completion Ratio</h3>
           </div>
           <div className="flex-1 min-h-0 flex items-center justify-center relative">
             <ResponsiveContainer width="100%" height={200}>

@@ -75,7 +75,7 @@ export const ZoneTable: React.FC<ZoneTableProps> = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-150">
-            {data.map((row) => {
+            {[...data].sort((a,b)=> a.zone.localeCompare(b.zone)).map((row)=> {
               const isSelected = selectedZone === row.zone;
               return (
                 <tr

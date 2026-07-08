@@ -44,7 +44,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         <p className="text-sm text-slate-300">
-            Executive Survey Monitoring Dashboard
+            DashCam Survey Monitoring Dashboard
         </p>
     </div>
 

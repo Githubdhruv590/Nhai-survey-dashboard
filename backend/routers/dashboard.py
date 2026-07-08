@@ -259,6 +259,23 @@ def get_dashboard(
             zone=zone, ro=ro, piu=piu, status=status, search=search
         )
 
+        print("\n=== DIAGNOSTICS BEFORE generate_zone_summary_table ===")
+        bad = df_filtered[~df_filtered["Zone"].isin(["A", "B", "C", "D", "E", "A Zone", "B Zone", "C Zone", "D Zone", "E Zone"])]
+        print("Records where Zone is invalid:")
+        cols = ["UPC Code", "Project Name", "RO Worksheet Name", "PIU Name", "RO Name", "Zone", "Scheduled Survey Date"]
+        avail_cols = [c for c in cols if c in bad.columns]
+        print(bad[avail_cols].to_string())
+        
+        print("\nUnique Zones in df_filtered:")
+        if "Zone" in df_filtered.columns:
+            print(df_filtered["Zone"].unique())
+        
+        print("\nRecords where Zone is empty, 'Zone', or NaN:")
+        if "Zone" in df_filtered.columns:
+            empty_zones = df_filtered[df_filtered["Zone"].isin(["", "Zone"]) | df_filtered["Zone"].isna()]
+            print(empty_zones[avail_cols].to_string())
+        print("====================================================\n")
+
         kpis = summary_engine.calculate_kpis(df_filtered)
         zone_table = summary_engine.generate_zone_summary_table(df_filtered)
 

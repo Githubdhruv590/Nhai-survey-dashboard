@@ -349,6 +349,35 @@ def parse_sheet_values(values: List[List]) -> pd.DataFrame:
         if series.dtype == object:
             df.iloc[:, i] = series.astype(str).str.strip()
             
+    # Remove phantom empty rows (padding rows in Google Sheets)
+    # Match columns loosely as they may contain newlines or slight variations
+    def get_col(candidates):
+        for col in df.columns:
+            col_lower = col.lower().replace('\n', '').replace(' ', '')
+            if any(c in col_lower for c in candidates):
+                return col
+        return None
+        
+    upc_col = get_col(["upccode", "upc"])
+    proj_col = get_col(["projectname"])
+    sid_col = get_col(["surveyid"])
+    sched_col = get_col(["scheduledsurvey", "scheduleddate"])
+    actual_col = get_col(["actualsurvey", "actualdate"])
+    
+    # If this is a survey sheet (has these 3 core columns)
+    if upc_col and proj_col and sid_col:
+        # Check if all these key columns are effectively blank
+        def is_blank(col_name):
+            return df[col_name].isna() | (df[col_name].astype(str).str.strip() == "") | (df[col_name].astype(str).str.lower() == "nan")
+            
+        mask = is_blank(upc_col) & is_blank(proj_col) & is_blank(sid_col)
+        if sched_col:
+            mask = mask & is_blank(sched_col)
+        if actual_col:
+            mask = mask & is_blank(actual_col)
+            
+        df = df[~mask].copy()
+        
     return df
 
 def get_spreadsheet_metadata(force_refresh: bool = False) -> Tuple[str, List[str]]:

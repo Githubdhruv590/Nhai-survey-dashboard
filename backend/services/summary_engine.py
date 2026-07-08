@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 import re
 from typing import Dict, List, Any, Tuple
-from backend.services.week_engine import parse_date
+from backend.services.week_engine import parse_date, get_week_boundaries, get_week_label
+from backend.services.hierarchy_cache import hierarchy_cache
 import logging
 
 logger = logging.getLogger("nhai_dashboard")
@@ -121,12 +122,24 @@ def generate_validation_report(sheets_dict: Dict[str, pd.DataFrame], df_details:
     
     # 1. Compute raw totals from individual sheets
     for name, df in sheets_dict.items():
-        if name.lower().strip() == "project details" or df.empty:
+        if name.lower().strip() == "project details" or name.lower().strip() == "ppm" or df.empty:
             continue
-        raw_survey_count += len(df)
+            
+        # Global rule: Ignore surveys where Scheduled Survey Date is blank or invalid
+        date_series = get_column_series(df, ["Scheduled Survey Date", "Scheduled Date"])
+        if date_series is not None and not date_series.empty:
+            from backend.services.week_engine import parse_date
+            def is_valid_date(val):
+                return parse_date(val) is not None
+            valid_mask = date_series.apply(is_valid_date)
+            df_valid = df[valid_mask]
+        else:
+            df_valid = df
+            
+        raw_survey_count += len(df_valid)
         
         # MCW Length
-        mcw_col = get_column_series(df, ["MCW Length Surveyed", "MCW Length Surveyed (Km)"])
+        mcw_col = get_column_series(df_valid, ["MCW Length Surveyed", "MCW Length Surveyed (Km)"])
         def clean_val(val):
             if pd.isna(val): return 0.0
             val_str = str(val).strip().replace(" ", "")
@@ -136,7 +149,7 @@ def generate_validation_report(sheets_dict: Dict[str, pd.DataFrame], df_details:
         raw_mcw_len += mcw_col.apply(clean_val).sum()
         
         # SR Length
-        sr_col = get_column_series(df, ["SR Length Surveyed", "SR/SL Length Surveyed (Km)", "SR/SL Length Surveyed"])
+        sr_col = get_column_series(df_valid, ["SR Length Surveyed", "SR/SL Length Surveyed (Km)", "SR/SL Length Surveyed"])
         raw_sr_len += sr_col.apply(clean_val).sum()
         
     # 2. Compute compiled totals
@@ -269,6 +282,12 @@ def compile_master_data(sheets_dict: Dict[str, pd.DataFrame]) -> Tuple[pd.DataFr
     if not df_surveys.empty:
         df_surveys = normalize_dataframe_columns(df_surveys, ro_sheet_mapping)
     
+    # Optional: Build the hierarchy cache if PPM is provided in this data refresh
+    if "PPM" in sheets_dict:
+        hierarchy_cache.build(sheets_dict["PPM"])
+    # User explicitly requested NO FALLBACK to Project Details for hierarchy cache.
+    # If PPM is missing, the cache will remain empty.
+    
     # Strip string columns safely using iloc to bypass any duplicate column name issues
     for i in range(df_details.shape[1]):
         series = df_details.iloc[:, i]
@@ -286,34 +305,125 @@ def compile_master_data(sheets_dict: Dict[str, pd.DataFrame]) -> Tuple[pd.DataFr
     if not df_surveys.empty and "UPC Code" in df_surveys.columns:
         df_surveys["UPC Code"] = df_surveys["UPC Code"].astype(str).str.replace(".0", "", regex=False).str.strip()
         
+    # Global rule: Ignore surveys where Scheduled Survey Date is blank or invalid
+    if not df_surveys.empty and "Scheduled Survey Date" in df_surveys.columns:
+        from backend.services.week_engine import parse_date
+        def is_valid_date(val):
+            return parse_date(val) is not None
+        
+        valid_date_mask = df_surveys["Scheduled Survey Date"].apply(is_valid_date)
+        df_surveys = df_surveys[valid_date_mask].copy()
+        
     df_merged = df_surveys.copy()
         
-    # Merge Project Details metadata onto Survey Records on UPC Code
+    # ----------------------------------------------------
+    # HIERARCHY PIPELINE: UPC -> Normalized Proj -> Fuzzy Proj -> PIU -> PPM -> RO -> Zone
+    # ----------------------------------------------------
     if not df_surveys.empty and not df_details.empty:
-        # Identify columns in project details to merge
-        meta_cols = ["UPC Code", "NH Number", "State", "PIU Name", "RO Name", "RFP Ref.", "Survey Start Date"]
+        meta_cols = ["UPC Code", "NH Number", "PIU Name", "RFP Ref.", "Survey Start Date", "Project Name", "RO Name"]
         meta_cols = [c for c in meta_cols if c in df_details.columns]
         
-        # Deduplicate metadata on UPC Code to prevent row multiplication during left merge
-        df_details_meta = df_details[meta_cols].drop_duplicates(subset=["UPC Code"])
+        df_details_meta = df_details[meta_cols].copy()
+        # Ignore empty UPC codes in Project Details to prevent incorrect cross-mapping for strict join
+        df_details_strict = df_details_meta[df_details_meta["UPC Code"].astype(str).str.strip() != ""]
+        df_details_strict = df_details_strict.drop_duplicates(subset=["UPC Code"])
         
-        # Perform merge
-        df_merged = pd.merge(df_surveys, df_details_meta, on="UPC Code", how="left", suffixes=("", "_meta"))
+        df_merged = pd.merge(df_surveys, df_details_strict[["UPC Code", "NH Number", "PIU Name", "RFP Ref.", "Survey Start Date"]], on="UPC Code", how="left")
         
-        # Fill missing RO Name with Sheet Name (including empty strings)
-        if "RO Name" in df_merged.columns:
-            df_merged["RO Name"] = df_merged["RO Name"].replace("", np.nan).fillna(df_merged["RO Worksheet Name"])
-        else:
-            df_merged["RO Name"] = df_merged["RO Worksheet Name"]
+        import string
+        import difflib
+        
+        def normalize_project_name(name):
+            if pd.isna(name): return ""
+            name = str(name).lower()
+            # Remove punctuation
+            name = name.translate(str.maketrans('', '', string.punctuation))
+            # Collapse repeated spaces
+            name = " ".join(name.split())
+            return name
             
-        # Fill missing Zone if empty in RO sheet but present in metadata (or vice versa)
-        if "Zone" in df_merged.columns and "Zone_meta" in df_merged.columns:
-            df_merged["Zone"] = df_merged["Zone"].fillna(df_merged["Zone_meta"])
-            df_merged.drop(columns=["Zone_meta"], inplace=True)
+        # Build normalized project name to PIU mapping
+        proj_to_pius = {}
+        ro_to_projs = {}
+        
+        for _, row in df_details_meta.iterrows():
+            p_name = normalize_project_name(row.get("Project Name", ""))
+            piu = str(row.get("PIU Name", "")).strip()
+            ro_val = clean_ro_display_name(row.get("RO Name", ""))
             
-    # If merge isn't possible, ensure RO Name is populated from sheet name
-    elif not df_surveys.empty:
-        df_merged["RO Name"] = df_merged.get("RO Name", df_merged["RO Worksheet Name"])
+            if p_name and piu and piu.lower() not in ["nan", "none"]:
+                if p_name not in proj_to_pius:
+                    proj_to_pius[p_name] = set()
+                proj_to_pius[p_name].add(piu)
+                
+                if ro_val:
+                    if ro_val not in ro_to_projs:
+                        ro_to_projs[ro_val] = []
+                    ro_to_projs[ro_val].append((p_name, piu))
+                    
+        # Deterministic project mapping (only if unique)
+        deterministic_proj_map = {k: list(v)[0] for k, v in proj_to_pius.items() if len(v) == 1}
+        
+        def resolve_hierarchy(row):
+            piu = str(row.get("PIU Name", "")).strip()
+            if piu.lower() in ["nan", "none", "unknown", ""]:
+                piu = ""
+                
+            orig_proj_name = str(row.get("Project Name", ""))
+            norm_proj = normalize_project_name(orig_proj_name)
+            worksheet_ro = clean_ro_display_name(row.get("RO Worksheet Name", ""))
+            
+            # Fallback 1: Deterministic Normalized Project Name
+            if not piu and norm_proj:
+                if norm_proj in deterministic_proj_map:
+                    piu = deterministic_proj_map[norm_proj]
+                    
+            # Fallback 2: Fuzzy Project Name Matching constrained by RO
+            if not piu and norm_proj and worksheet_ro in ro_to_projs:
+                candidates = ro_to_projs[worksheet_ro]
+                candidate_names = [c[0] for c in candidates]
+                matches = difflib.get_close_matches(norm_proj, candidate_names, n=2, cutoff=0.90)
+                
+                if len(matches) == 1:
+                    # Exactly one high-confidence candidate
+                    match_name = matches[0]
+                    # Find corresponding PIU
+                    for c_name, c_piu in candidates:
+                        if c_name == match_name:
+                            piu = c_piu
+                            break
+
+            ro = ""
+            zone = ""
+            
+            if piu and hierarchy_cache.is_built:
+                ro = hierarchy_cache.get_ro_for_piu(piu) or ""
+                if ro:
+                    zone = hierarchy_cache.get_zone_for_ro(ro) or ""
+                    
+            if not ro:
+                ro = str(row.get("RO Worksheet Name", "")).strip()
+                
+            if not zone:
+                cleaned_ro = clean_ro_display_name(ro)
+                if hierarchy_cache.is_built:
+                    zone = hierarchy_cache.get_zone_for_ro(cleaned_ro) or ""
+                if not zone:
+                    zone = str(row.get("Zone", "")).strip()
+                    if zone.lower() in ["nan", "none", "unknown"]:
+                        zone = ""
+                        
+            # Log unresolved surveys
+            if not piu:
+                upc_val = str(row.get("UPC Code", "")).strip()
+                sid_val = str(row.get("Survey ID", "")).strip()
+                logger.warning(f"Hierarchy Mapping Required: SID='{sid_val}', UPC='{upc_val}', Project='{orig_proj_name}', RO='{worksheet_ro}'")
+                
+            return pd.Series([piu, ro, zone])
+            
+        df_merged[["PIU Name", "RO Name", "Zone"]] = df_merged.apply(resolve_hierarchy, axis=1)
+    else:
+        df_merged = df_surveys.copy()
 
     # ----------------------------------------------------
     # Ingestion Data Normalization / Cleaning Layer
@@ -383,7 +493,7 @@ def compile_master_data(sheets_dict: Dict[str, pd.DataFrame]) -> Tuple[pd.DataFr
             def compute_date_hierarchy(val):
                 dt = parse_date(val)
                 if not dt:
-                    return active_mon_str, active_label, active_year, active_month_str
+                    return None, None, pd.NA, None
                 monday, sunday = get_week_boundaries(dt)
                 
                 mon_str = monday.strftime("%Y-%m-%d")
@@ -400,10 +510,63 @@ def compile_master_data(sheets_dict: Dict[str, pd.DataFrame]) -> Tuple[pd.DataFr
             df_merged["Month"] = h_data.apply(lambda x: x[3])
 
     # Print validation information and run the strict startup audit
+    print("\n========== INVALID ZONE ROWS ==========")
+
+    invalid = df_merged[df_merged["Zone"].astype(str).str.strip() == "Zone"]
+
+    print(invalid[[
+    "RO Worksheet Name",
+    "Zone",
+    "Project Name",
+    "UPC Code"
+        ]])
+
+    print("Total Invalid Rows:", len(invalid))
+    print("=======================================\n")
     audit_backend_startup(sheets_dict, df_merged)
     
     # Generate original validation report comparison (optional, but keep for backward compatibility)
     generate_validation_report(sheets_dict, df_details, df_merged)
+    
+    df_merged = df_merged.dropna(subset=["Scheduled Survey Date"])
+    
+    # ----------------------------------------------------
+    # Validate Math and Print Missing
+    # ----------------------------------------------------
+    print("\n==================================================================")
+    print("STARTUP VALIDATION: RO vs PIU COUNTS")
+    print("==================================================================")
+    ro_groups = df_merged.groupby("RO Name", dropna=False)
+    for ro_name, group in ro_groups:
+        ro_total = len(group)
+        # Sum of all PIUs (including unmapped blanks, which remain in the dataframe)
+        sum_pius = len(group)
+        
+        diff = ro_total - sum_pius
+        
+        # We will also count strictly mapped PIUs just for logging purposes
+        mapped_pius = 0
+        piu_counts = group.groupby("PIU Name", dropna=False).size()
+        for piu_name, count in piu_counts.items():
+            piu_str = str(piu_name).strip()
+            if piu_str not in ["nan", "None", "", "Unknown"]:
+                mapped_pius += count
+                
+        print(f"RO Name: {ro_name}")
+        print(f"RO Total: {ro_total}")
+        print(f"Sum of PIUs: {sum_pius}")
+        print(f"Difference: {diff}")
+        print(f"Mapped PIUs: {mapped_pius}")
+        
+        if diff != 0:
+            print(f"  WARNING: Difference detected for {ro_name}!")
+            # Print every unmatched survey
+            for _, row in group.iterrows():
+                piu = str(row.get("PIU Name", "")).strip()
+                if piu in ["nan", "None", "", "Unknown"]:
+                    print(f"  -> Missing Survey: UPC={row.get('UPC Code', '')} | Project={row.get('Project Name', '')} | RO={ro_name} | PIU from spreadsheet={row.get('PIU Name', '')}")
+        print("------------------------------------------------------------------")
+    print("==================================================================\n")
 
     return df_details, df_merged
 
@@ -576,9 +739,20 @@ def audit_backend_startup(sheets_dict: Dict[str, pd.DataFrame], df_merged: pd.Da
     # 1. Base counts
     raw_survey_count = 0
     for name, df in sheets_dict.items():
-        if name.lower().strip() == "project details" or df.empty:
+        if name.lower().strip() == "project details" or name.lower().strip() == "ppm" or df.empty:
             continue
-        raw_survey_count += len(df)
+            
+        date_series = get_column_series(df, ["Scheduled Survey Date", "Scheduled Date"])
+        if date_series is not None and not date_series.empty:
+            from backend.services.week_engine import parse_date
+            def is_valid_date(val):
+                return parse_date(val) is not None
+            valid_mask = date_series.apply(is_valid_date)
+            df_valid = df[valid_mask]
+        else:
+            df_valid = df
+            
+        raw_survey_count += len(df_valid)
         
     compiled_survey_count = len(df_merged)
     diff = raw_survey_count - compiled_survey_count
@@ -761,7 +935,7 @@ def generate_zone_summary_table(df: pd.DataFrame) -> List[Dict[str, Any]]:
     table_rows = []
     
     for zone_name, group in zone_groups:
-        zone_label = str(zone_name) if not pd.isna(zone_name) else "Unknown"
+        zone_label = str(zone_name).strip() if not pd.isna(zone_name) else ""
         kpis = calculate_kpis(group)
         
         table_rows.append({
@@ -796,12 +970,12 @@ def generate_ro_summary_table(df: pd.DataFrame) -> List[Dict[str, Any]]:
     table_rows = []
     
     for ro_name, group in ro_groups:
-        ro_label = str(ro_name) if not pd.isna(ro_name) else "Unknown"
+        ro_label = str(ro_name).strip() if not pd.isna(ro_name) else ""
         kpis = calculate_kpis(group)
         
         table_rows.append({
             "ro_name": ro_label,
-            "zone": str(group["Zone"].iloc[0]) if not group["Zone"].empty else "Unknown",
+            "zone": str(group["Zone"].iloc[0]).strip() if not group["Zone"].empty and not pd.isna(group["Zone"].iloc[0]) else "",
             "scheduled": kpis["total_scheduled"],
             "completed": kpis["completed"],
             "pending": kpis["pending"],
@@ -832,14 +1006,15 @@ def generate_piu_summary_table(df: pd.DataFrame) -> List[Dict[str, Any]]:
     table_rows = []
     
     for piu_name, group in piu_groups:
-        piu_label = str(piu_name) if not pd.isna(piu_name) else "Unknown"
-        ro_name = str(group["RO Name"].iloc[0]) if not group["RO Name"].empty else "Unknown"
+        piu_label = str(piu_name).strip() if not pd.isna(piu_name) else ""
+            
+        ro_name = str(group["RO Name"].iloc[0]).strip() if not group["RO Name"].empty and not pd.isna(group["RO Name"].iloc[0]) else ""
         kpis = calculate_kpis(group)
         
         table_rows.append({
             "piu_name": piu_label,
             "ro_name": ro_name,
-            "zone": str(group["Zone"].iloc[0]) if not group["Zone"].empty else "Unknown",
+            "zone": str(group["Zone"].iloc[0]).strip() if not group["Zone"].empty and not pd.isna(group["Zone"].iloc[0]) else "",
             "scheduled": kpis["total_scheduled"],
             "completed": kpis["completed"],
             "pending": kpis["pending"],
@@ -870,10 +1045,11 @@ def generate_project_summary_table(df: pd.DataFrame) -> List[Dict[str, Any]]:
     table_rows = []
     
     for upc_code, group in project_groups:
-        upc_label = str(upc_code) if not pd.isna(upc_code) else "Unknown"
-        proj_name = str(group["Project Name"].iloc[0]) if not group["Project Name"].empty else "Unknown"
-        ro_name = str(group["RO Name"].iloc[0]) if not group["RO Name"].empty else "Unknown"
-        piu_name = str(group["PIU Name"].iloc[0]) if "PIU Name" in group.columns and not group["PIU Name"].empty else "Unknown"
+        upc_label = str(upc_code).strip() if not pd.isna(upc_code) else ""
+        proj_name = str(group["Project Name"].iloc[0]).strip() if not group["Project Name"].empty and not pd.isna(group["Project Name"].iloc[0]) else ""
+        ro_name = str(group["RO Name"].iloc[0]).strip() if not group["RO Name"].empty and not pd.isna(group["RO Name"].iloc[0]) else ""
+        raw_piu = group["PIU Name"].iloc[0] if "PIU Name" in group.columns and not group["PIU Name"].empty else ""
+        piu_name_val = str(raw_piu).strip() if not pd.isna(raw_piu) else ""
         
         kpis = calculate_kpis(group)
         
@@ -881,13 +1057,16 @@ def generate_project_summary_table(df: pd.DataFrame) -> List[Dict[str, Any]]:
             "upc_code": upc_label,
             "project_name": proj_name,
             "ro_name": ro_name,
-            "piu_name": piu_name,
+            "piu_name": piu_name_val,
             "scheduled": kpis["total_scheduled"],
             "completed": kpis["completed"],
             "pending": kpis["pending"],
             "completion_rate": kpis["completion_rate"],
+            "reports_received": kpis["reports_received"],
             "on_time": kpis["on_time_reports"],
             "delayed": kpis["delayed_reports"],
+            "reports_validated": kpis["reports_validated"],
+            "pending_validation": kpis["reports_pending_validation"],
             "discrepancies": kpis["discrepancies_raised"],
             "resolved": kpis["discrepancies_resolved"],
             "pending_discrepancies": kpis["discrepancies_pending"],

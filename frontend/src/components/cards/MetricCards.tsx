@@ -90,9 +90,8 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ kpis, isLoading }) => 
         />
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           <Card
-            title="Total Surveys"
+            title="Total Surveys Scheduled"
             value={kpis.total_surveys_scheduled}
-            subtitle={`${kpis.total_surveyed_length.toLocaleString()} KM total`}
             icon={<Calendar className="h-4 w-4 text-blue-600" />}
             valueColor="text-slate-900"
             isCTA
@@ -100,7 +99,7 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ kpis, isLoading }) => 
           <Card
             title="Completed"
             value={kpis.completed}
-            subtitle={`${completionPct.toFixed(1)}% completion rate`}
+            subtitle={`${completionPct.toFixed(1)}% completion rate • ${kpis.total_surveyed_length.toLocaleString()} KM`}
             icon={<CheckCircle2 className="h-4 w-4 text-emerald-600" />}
             valueColor="text-emerald-700"
             accent="border-emerald-200"
@@ -114,6 +113,8 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ kpis, isLoading }) => 
             icon={<Clock className="h-4 w-4 text-amber-500" />}
             valueColor="text-amber-700"
             accent="border-amber-200"
+            progress={pendingPct}
+            progressColor="bg-amber-500"
           />
           <Card
             title="Scheduled"
