@@ -1,7 +1,7 @@
 import React from 'react';
 import type { KPIMetrics } from '../../hooks/useDashboardData';
 import {
-  Calendar, CheckCircle2, AlertTriangle, Sparkles,
+  Calendar, CheckCircle2, AlertTriangle,AlertCircle, Sparkles,
   Clock, FileText, FileCheck, FileX, Zap, ShieldCheck,
   ClipboardCheck, MessageSquare, AlertOctagon, CheckCheck, Hourglass
 } from 'lucide-react';
