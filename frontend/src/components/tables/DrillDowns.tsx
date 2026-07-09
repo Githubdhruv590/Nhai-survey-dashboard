@@ -15,6 +15,9 @@ interface DrillDownsProps {
   selectedProject: string | null;
   selectedProjectName: string | null;
   
+  // DAS Providers
+  dasProviders: string[];
+  
   // Handlers
   onSelectZone: (zone: string | null) => void;
   onSelectRO: (ro: string | null) => void;
@@ -40,6 +43,7 @@ export const DrillDowns: React.FC<DrillDownsProps> = ({
   selectedPIU,
   selectedProject,
   selectedProjectName,
+  dasProviders,
   onSelectZone,
   onSelectRO,
   onSelectPIU,
@@ -107,6 +111,20 @@ export const DrillDowns: React.FC<DrillDownsProps> = ({
           </>
         )}
       </div>
+
+      {/* DAS Providers Context */}
+      {dasProviders && dasProviders.length > 0 && (
+        <div className="flex flex-wrap items-center space-x-2 text-xs mb-5 pb-4 border-b border-slate-100 no-print">
+          <span className="text-slate-500 font-semibold uppercase tracking-wider">DAS Provider{dasProviders.length > 1 ? 's' : ''}:</span>
+          <div className="flex flex-wrap gap-1.5">
+            {dasProviders.map(provider => (
+              <span key={provider} className="bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-md font-medium flex items-center shadow-sm">
+                {provider}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* LEVEL 1: RO Drilldown within selected Zone */}
       {selectedZone && !selectedRO && (

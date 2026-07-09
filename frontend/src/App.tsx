@@ -76,74 +76,136 @@ function App() {
     }
   }, [isConfigError]);
 
-  const handleFilterChange = (newFilters: DashboardFilters) => {
+
+  // Push state to browser history
+  const updateStateAndHistory = (
+    newFilters: DashboardFilters,
+    newZone: string | null,
+    newRO: string | null,
+    newPIU: string | null,
+    newProject: string | null,
+    newProjectName: string | null
+  ) => {
+    const newState = {
+      filters: newFilters,
+      selectedZone: newZone,
+      selectedRO: newRO,
+      selectedPIU: newPIU,
+      selectedProject: newProject,
+      selectedProjectName: newProjectName
+    };
+    
     setFilters(newFilters);
+    setSelectedZone(newZone);
+    setSelectedRO(newRO);
+    setSelectedPIU(newPIU);
+    setSelectedProject(newProject);
+    setSelectedProjectName(newProjectName);
+    
+    window.history.pushState(newState, '', '');
+  };
+
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      const state = event.state;
+      if (state) {
+        setFilters(state.filters || {});
+        setSelectedZone(state.selectedZone || null);
+        setSelectedRO(state.selectedRO || null);
+        setSelectedPIU(state.selectedPIU || null);
+        setSelectedProject(state.selectedProject || null);
+        setSelectedProjectName(state.selectedProjectName || null);
+      } else {
+        setFilters({});
+        setSelectedZone(null);
+        setSelectedRO(null);
+        setSelectedPIU(null);
+        setSelectedProject(null);
+        setSelectedProjectName(null);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const handleFilterChange = (newFilters: DashboardFilters) => {
+    let newZone = selectedZone;
+    let newRO = selectedRO;
+    let newPIU = selectedPIU;
+    let newProject = selectedProject;
+    let newProjectName = selectedProjectName;
+
+    // Sync Zone drilldown state
     if (newFilters.zone && newFilters.zone !== selectedZone) {
-      setSelectedZone(newFilters.zone);
-      setSelectedRO(null);
-      setSelectedPIU(null);
-      setSelectedProject(null);
-      setSelectedProjectName(null);
-    } else if (!newFilters.zone) {
-      setSelectedZone(null);
-      setSelectedRO(null);
-      setSelectedPIU(null);
-      setSelectedProject(null);
-      setSelectedProjectName(null);
+      newZone = newFilters.zone;
+      newRO = null;
+      newPIU = null;
+      newProject = null;
+      newProjectName = null;
+    } else if (!newFilters.zone && selectedZone) {
+      newZone = null;
+      newRO = null;
+      newPIU = null;
+      newProject = null;
+      newProjectName = null;
     }
     
+    // Sync RO drilldown state
     if (newFilters.ro && newFilters.ro !== selectedRO) {
-      setSelectedRO(newFilters.ro);
-      setSelectedPIU(null);
-      setSelectedProject(null);
-      setSelectedProjectName(null);
+      newRO = newFilters.ro;
+      newPIU = null;
+      newProject = null;
+      newProjectName = null;
+    } else if (!newFilters.ro && selectedRO) {
+      newRO = null;
+      newPIU = null;
+      newProject = null;
+      newProjectName = null;
     }
     
+    // Sync PIU drilldown state
     if (newFilters.piu && newFilters.piu !== selectedPIU) {
-      setSelectedPIU(newFilters.piu);
-      setSelectedProject(null);
-      setSelectedProjectName(null);
+      newPIU = newFilters.piu;
+      newProject = null;
+      newProjectName = null;
+    } else if (!newFilters.piu && selectedPIU) {
+      newPIU = null;
+      newProject = null;
+      newProjectName = null;
     }
+    
+    updateStateAndHistory(newFilters, newZone, newRO, newPIU, newProject, newProjectName);
   };
 
   const handleSelectZone = (zone: string | null) => {
-    setSelectedZone(zone);
-    setSelectedRO(null);
-    setSelectedPIU(null);
-    setSelectedProject(null);
-    setSelectedProjectName(null);
-    setFilters(prev => ({
-      ...prev,
+    const newFilters = {
+      ...filters,
       zone: zone || undefined,
-      ro: undefined
-    }));
+      ro: undefined,
+      piu: undefined
+    };
+    updateStateAndHistory(newFilters, zone, null, null, null, null);
   };
 
   const handleSelectRO = (ro: string | null) => {
-    setSelectedRO(ro);
-    setSelectedPIU(null);
-    setSelectedProject(null);
-    setSelectedProjectName(null);
-    setFilters(prev => ({
-      ...prev,
+    const newFilters = {
+      ...filters,
       ro: ro || undefined,
       piu: undefined
-    }));
+    };
+    updateStateAndHistory(newFilters, selectedZone, ro, null, null, null);
   };
 
   const handleSelectPIU = (piu: string | null) => {
-    setSelectedPIU(piu);
-    setSelectedProject(null);
-    setSelectedProjectName(null);
-    setFilters(prev => ({
-      ...prev,
+    const newFilters = {
+      ...filters,
       piu: piu || undefined
-    }));
+    };
+    updateStateAndHistory(newFilters, selectedZone, selectedRO, piu, null, null);
   };
 
   const handleSelectProject = (upc: string | null, name: string | null) => {
-    setSelectedProject(upc);
-    setSelectedProjectName(name);
+    updateStateAndHistory(filters, selectedZone, selectedRO, selectedPIU, upc, name);
   };
 
   const handleRefresh = () => {
@@ -260,6 +322,7 @@ function App() {
                   selectedPIU={selectedPIU}
                   selectedProject={selectedProject}
                   selectedProjectName={selectedProjectName}
+                  dasProviders={dashboardData?.charts?.provider_performance?.map(p => p.provider) || []}
                   onSelectZone={handleSelectZone}
                   onSelectRO={handleSelectRO}
                   onSelectPIU={handleSelectPIU}
