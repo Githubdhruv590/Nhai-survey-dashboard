@@ -45,8 +45,6 @@ export interface KPIMetrics {
   reports_delayed: number;
   // Section 3: Defects
   defects_total: number | null;
-  defects_repeated: number | null;
-  defects_new: number | null;
   // Section 4: Quality
   average_precision: number | null;
   average_recall: number | null;
@@ -172,7 +170,6 @@ export interface SurveyRecordDetail {
   delay_d2: number;
   total_delay: number;
   defects_reported: number;
-  repeated_defects: number;
   precision_score: number;
   recall_score: number;
   interim_acceptance_date: string;

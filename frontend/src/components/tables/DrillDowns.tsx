@@ -412,7 +412,7 @@ export const DrillDowns: React.FC<DrillDownsProps> = ({
                         <div>Main Carriageway Length: <span className="font-semibold text-slate-800">{survey.mcw_length_surveyed > 0 ? `${survey.mcw_length_surveyed} KM` : '-'}</span></div>
                         <div>Service Road Length: <span className="font-semibold text-slate-800">{survey.sr_length_surveyed > 0 ? `${survey.sr_length_surveyed} KM` : '-'}</span></div>
                         <div>Incidents Reported: <span className="font-semibold text-slate-800">{survey.ir_count > 0 ? survey.ir_count : '-'}</span></div>
-                        <div>Total Defects: <span className="font-semibold text-slate-800">{survey.defects_reported > 0 ? `${survey.defects_reported} (${survey.repeated_defects} repeated)` : '-'}</span></div>
+                        <div>Total Defects: <span className="font-semibold text-slate-800">{survey.defects_reported > 0 ? `${survey.defects_reported}` : '-'}</span></div>
                       </div>
                       
                       {/* Column 2: Deliverables & Quality scores */}

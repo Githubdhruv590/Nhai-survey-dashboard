@@ -425,12 +425,6 @@ def get_project_drilldown(
             else:
                 record_dict["defects_reported"] = int(record_dict["defects_reported"])
                 
-            record_dict["repeated_defects"] = pd.to_numeric(row.get("Repeated Defects"), errors="coerce")
-            if pd.isna(record_dict["repeated_defects"]):
-                record_dict["repeated_defects"] = 0
-            else:
-                record_dict["repeated_defects"] = int(record_dict["repeated_defects"])
-                
             record_dict["precision_score"] = pd.to_numeric(row.get("Precision Score"), errors="coerce")
             if pd.isna(record_dict["precision_score"]):
                 record_dict["precision_score"] = 0.0
@@ -472,7 +466,6 @@ def get_project_drilldown(
                 "Delay D2": "delay_d2",
                 "Total Delay": "total_delay",
                 "Defects Reported": "defects_reported",
-                "Repeated Defects": "repeated_defects",
                 "Precision Score": "precision_score",
                 "Recall Score": "recall_score",
                 "Interim Acceptance Date": "interim_acceptance_date",

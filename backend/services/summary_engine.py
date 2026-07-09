@@ -253,6 +253,7 @@ def compile_master_data(sheets_dict: Dict[str, pd.DataFrame]) -> Tuple[pd.DataFr
     
     ro_sheet_mapping = {
         "Zone": ["zone"],
+        "PIU Name": ["piu name", "piuname", "piu"],
         "DAS Provider Name": ["das provider name", "provider name", "dasprovidername", "provider"],
         "Project Name": ["project name", "projectname"],
         "UPC Code": ["upc code", "upccode", "upc"],
@@ -317,81 +318,13 @@ def compile_master_data(sheets_dict: Dict[str, pd.DataFrame]) -> Tuple[pd.DataFr
     df_merged = df_surveys.copy()
         
     # ----------------------------------------------------
-    # HIERARCHY PIPELINE: UPC -> Normalized Proj -> Fuzzy Proj -> PIU -> PPM -> RO -> Zone
+    # HIERARCHY PIPELINE: Survey Sheet PIU -> PPM -> RO -> Zone
     # ----------------------------------------------------
-    if not df_surveys.empty and not df_details.empty:
-        meta_cols = ["UPC Code", "NH Number", "PIU Name", "RFP Ref.", "Survey Start Date", "Project Name", "RO Name"]
-        meta_cols = [c for c in meta_cols if c in df_details.columns]
-        
-        df_details_meta = df_details[meta_cols].copy()
-        # Ignore empty UPC codes in Project Details to prevent incorrect cross-mapping for strict join
-        df_details_strict = df_details_meta[df_details_meta["UPC Code"].astype(str).str.strip() != ""]
-        df_details_strict = df_details_strict.drop_duplicates(subset=["UPC Code"])
-        
-        df_merged = pd.merge(df_surveys, df_details_strict[["UPC Code", "NH Number", "PIU Name", "RFP Ref.", "Survey Start Date"]], on="UPC Code", how="left")
-        
-        import string
-        import difflib
-        
-        def normalize_project_name(name):
-            if pd.isna(name): return ""
-            name = str(name).lower()
-            # Remove punctuation
-            name = name.translate(str.maketrans('', '', string.punctuation))
-            # Collapse repeated spaces
-            name = " ".join(name.split())
-            return name
-            
-        # Build normalized project name to PIU mapping
-        proj_to_pius = {}
-        ro_to_projs = {}
-        
-        for _, row in df_details_meta.iterrows():
-            p_name = normalize_project_name(row.get("Project Name", ""))
-            piu = str(row.get("PIU Name", "")).strip()
-            ro_val = clean_ro_display_name(row.get("RO Name", ""))
-            
-            if p_name and piu and piu.lower() not in ["nan", "none"]:
-                if p_name not in proj_to_pius:
-                    proj_to_pius[p_name] = set()
-                proj_to_pius[p_name].add(piu)
-                
-                if ro_val:
-                    if ro_val not in ro_to_projs:
-                        ro_to_projs[ro_val] = []
-                    ro_to_projs[ro_val].append((p_name, piu))
-                    
-        # Deterministic project mapping (only if unique)
-        deterministic_proj_map = {k: list(v)[0] for k, v in proj_to_pius.items() if len(v) == 1}
-        
+    if not df_merged.empty:
         def resolve_hierarchy(row):
             piu = str(row.get("PIU Name", "")).strip()
             if piu.lower() in ["nan", "none", "unknown", ""]:
                 piu = ""
-                
-            orig_proj_name = str(row.get("Project Name", ""))
-            norm_proj = normalize_project_name(orig_proj_name)
-            worksheet_ro = clean_ro_display_name(row.get("RO Worksheet Name", ""))
-            
-            # Fallback 1: Deterministic Normalized Project Name
-            if not piu and norm_proj:
-                if norm_proj in deterministic_proj_map:
-                    piu = deterministic_proj_map[norm_proj]
-                    
-            # Fallback 2: Fuzzy Project Name Matching constrained by RO
-            if not piu and norm_proj and worksheet_ro in ro_to_projs:
-                candidates = ro_to_projs[worksheet_ro]
-                candidate_names = [c[0] for c in candidates]
-                matches = difflib.get_close_matches(norm_proj, candidate_names, n=2, cutoff=0.90)
-                
-                if len(matches) == 1:
-                    # Exactly one high-confidence candidate
-                    match_name = matches[0]
-                    # Find corresponding PIU
-                    for c_name, c_piu in candidates:
-                        if c_name == match_name:
-                            piu = c_piu
-                            break
 
             ro = ""
             zone = ""
@@ -417,13 +350,15 @@ def compile_master_data(sheets_dict: Dict[str, pd.DataFrame]) -> Tuple[pd.DataFr
             if not piu:
                 upc_val = str(row.get("UPC Code", "")).strip()
                 sid_val = str(row.get("Survey ID", "")).strip()
+                orig_proj_name = str(row.get("Project Name", ""))
+                worksheet_ro = str(row.get("RO Worksheet Name", "")).strip()
                 logger.warning(f"Hierarchy Mapping Required: SID='{sid_val}', UPC='{upc_val}', Project='{orig_proj_name}', RO='{worksheet_ro}'")
+                # Fallback to RO Name to prevent blank PIUs
+                piu = clean_ro_display_name(ro)
                 
             return pd.Series([piu, ro, zone])
             
         df_merged[["PIU Name", "RO Name", "Zone"]] = df_merged.apply(resolve_hierarchy, axis=1)
-    else:
-        df_merged = df_surveys.copy()
 
     # ----------------------------------------------------
     # Ingestion Data Normalization / Cleaning Layer
@@ -581,7 +516,7 @@ def calculate_kpis(df: pd.DataFrame) -> Dict[str, Any]:
         "scheduled": 0, "cancelled": 0, "completion_rate": 0.0,
         "completed_surveys": 0, "reports_expected": 0, "reports_received": 0,
         "reports_on_time": 0, "reports_delayed": 0,
-        "defects_total": None, "defects_repeated": None, "defects_new": None,
+        "defects_total": None,
         "average_precision": None, "average_recall": None,
         "reports_validated": None, "reports_pending_validation": None,
         "piu_communication_completed": None,
@@ -630,18 +565,12 @@ def calculate_kpis(df: pd.DataFrame) -> Dict[str, Any]:
     def_rep_series = get_column_series(df, ["Defects Reported (#)", "Defects Reported"])
     def_rep_vals = pd.to_numeric(
         def_rep_series.astype(str).str.strip().replace(["", "-", "n/a", "nan"], pd.NA), errors="coerce"
-    )
-    def_rpt_series = get_column_series(df, ["Defects Repeated from Last Cycles (#)", "Defects Repeated from Last Cycles", "Defects Repeated"])
-    def_rpt_vals = pd.to_numeric(
-        def_rpt_series.astype(str).str.strip().replace(["", "-", "n/a", "nan"], pd.NA), errors="coerce"
-    )
+    ) if def_rep_series is not None else None
 
-    if def_rep_vals.isna().all():
-        defects_total = defects_repeated = defects_new = None
+    if def_rep_vals is None or def_rep_vals.isna().all():
+        defects_total = None
     else:
         defects_total = int(def_rep_vals.fillna(0).sum())
-        defects_repeated = int(def_rpt_vals.fillna(0).sum()) if not def_rpt_vals.isna().all() else None
-        defects_new = (defects_total - defects_repeated) if defects_repeated is not None else defects_total
 
     # ── SECTION 4: Quality Metrics (optional) ────────────────────────────────
     prec_series = get_column_series(df, ["Precision Score (%)", "Precision Score"])
@@ -711,7 +640,7 @@ def calculate_kpis(df: pd.DataFrame) -> Dict[str, Any]:
         "completed_surveys": completed_surveys,
         "reports_expected": reports_expected, "reports_received": reports_received,
         "reports_on_time": reports_on_time, "reports_delayed": reports_delayed,
-        "defects_total": defects_total, "defects_repeated": defects_repeated, "defects_new": defects_new,
+        "defects_total": defects_total,
         "average_precision": avg_prec, "average_recall": avg_rec,
         "reports_validated": reports_validated,
         "reports_pending_validation": reports_pending_validation,

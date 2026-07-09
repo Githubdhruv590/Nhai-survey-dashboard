@@ -20,8 +20,6 @@ class KPIMetrics(BaseModel):
     
     # Section 3: Defect Section
     defects_total: Optional[int] = Field(None, description="Total defects reported")
-    defects_repeated: Optional[int] = Field(None, description="Repeated defects")
-    defects_new: Optional[int] = Field(None, description="New defects")
     
     # Section 4: Quality Section
     average_precision: Optional[float] = Field(None, description="Average precision")
@@ -207,7 +205,6 @@ class SurveyRecordDetail(BaseModel):
     delay_d2: Optional[float] = 0.0
     total_delay: Optional[float] = 0.0
     defects_reported: Optional[int] = 0
-    repeated_defects: Optional[int] = 0
     precision_score: Optional[float] = 0.0
     recall_score: Optional[float] = 0.0
     interim_acceptance_date: Optional[str] = ""

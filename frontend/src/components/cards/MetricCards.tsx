@@ -1,8 +1,8 @@
 import React from 'react';
 import type { KPIMetrics } from '../../hooks/useDashboardData';
 import {
-  Calendar, CheckCircle2, AlertTriangle, AlertCircle, Sparkles,
-  Clock, FileText, FileCheck, FileX, Repeat2, Zap, ShieldCheck,
+  Calendar, CheckCircle2, AlertTriangle, Sparkles,
+  Clock, FileText, FileCheck, FileX, Zap, ShieldCheck,
   ClipboardCheck, MessageSquare, AlertOctagon, CheckCheck, Hourglass
 } from 'lucide-react';
 
@@ -194,7 +194,19 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ kpis, isLoading }) => 
           subtitle="Precision/Recall and defect tracking — N/A if columns are empty in spreadsheet"
           color="text-indigo-700"
         />
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* Defects Total */}
+          {kpis.defects_total !== null ? (
+            <Card
+              title="Total Defects"
+              value={kpis.defects_total}
+              subtitle="All defects reported"
+              icon={<AlertOctagon className="h-4 w-4 text-orange-500" />}
+              valueColor="text-orange-700"
+              accent="border-orange-200"
+            />
+          ) : <ComingSoon label="Total Defects" icon={<AlertOctagon className="h-6 w-6" />} />}
+
           {/* Precision */}
           {kpis.average_precision !== null ? (
             <Card
@@ -222,42 +234,6 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ kpis, isLoading }) => 
               progressColor="bg-cyan-500"
             />
           ) : <ComingSoon label="Avg Recall" icon={<Zap className="h-6 w-6" />} />}
-
-          {/* Defects Total */}
-          {kpis.defects_total !== null ? (
-            <Card
-              title="Total Defects"
-              value={kpis.defects_total}
-              subtitle="All defects reported"
-              icon={<AlertOctagon className="h-4 w-4 text-orange-500" />}
-              valueColor="text-orange-700"
-              accent="border-orange-200"
-            />
-          ) : <ComingSoon label="Total Defects" icon={<AlertOctagon className="h-6 w-6" />} />}
-
-          {/* Repeated Defects */}
-          {kpis.defects_repeated !== null ? (
-            <Card
-              title="Repeated Defects"
-              value={kpis.defects_repeated}
-              subtitle="From previous cycles"
-              icon={<Repeat2 className="h-4 w-4 text-rose-500" />}
-              valueColor="text-rose-700"
-              accent="border-rose-200"
-            />
-          ) : <ComingSoon label="Repeated Defects" icon={<Repeat2 className="h-6 w-6" />} />}
-
-          {/* New Defects */}
-          {kpis.defects_new !== null ? (
-            <Card
-              title="New Defects"
-              value={kpis.defects_new}
-              subtitle="= Total − Repeated"
-              icon={<AlertCircle className="h-4 w-4 text-amber-500" />}
-              valueColor="text-amber-700"
-              accent="border-amber-200"
-            />
-          ) : <ComingSoon label="New Defects" icon={<AlertCircle className="h-6 w-6" />} />}
 
           {/* Discrepancies */}
           {kpis.discrepancies_raised !== null ? (
