@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     GOOGLE_CREDENTIALS_FILE: Optional[str] = "credentials.json"
     GOOGLE_API_KEY: Optional[str] = None
     
+    DATABASE_URL: Optional[str] = "sqlite:///./nhai_dashboard.db" # Default for local testing if not set
+    
     # App Settings
     CACHE_EXPIRY_SECONDS: int = 300  # 5 minutes cache
     

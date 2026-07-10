@@ -150,7 +150,7 @@ export const DrillDowns: React.FC<DrillDownsProps> = ({
                   <tr className="bg-slate-100 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                     <th className="py-2 px-3 border-r border-slate-200" rowSpan={2}>Regional Office</th>
                     <th className="py-2 px-3 font-semibold text-center border-r border-slate-200 text-blue-700 bg-blue-50/50" colSpan={4}>Survey Metrics</th>
-                    <th className="py-2 px-3 font-semibold text-center text-purple-700 bg-purple-50/50" colSpan={7}>Report Metrics</th>
+                    <th className="py-2 px-3 font-semibold text-center text-purple-700 bg-purple-50/50" colSpan={5}>Report Metrics</th>
                   </tr>
                   <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                     <th className="py-2 px-2 text-center bg-blue-50/30">Scheduled</th>
@@ -160,8 +160,8 @@ export const DrillDowns: React.FC<DrillDownsProps> = ({
                     <th className="py-2 px-2 text-center bg-purple-50/30">Received</th>
                     <th className="py-2 px-2 text-center bg-purple-50/30">On Time</th>
                     <th className="py-2 px-2 text-center bg-purple-50/30">Delayed</th>
-                    <th className="py-2 px-2 text-center bg-purple-50/30">Validated</th>
-                    <th className="py-2 px-2 text-center bg-purple-50/30">Pend. Val.</th>
+                    {/* <th className="py-2 px-2 text-center bg-purple-50/30">Validated</th> */}
+                    {/* <th className="py-2 px-2 text-center bg-purple-50/30">Pend. Val.</th> */}
                     <th className="py-2 px-2 text-center bg-purple-50/30">Discrep.</th>
                     <th className="py-2 px-3 text-right bg-purple-50/30">Avg Delay</th>
                   </tr>
@@ -184,8 +184,8 @@ export const DrillDowns: React.FC<DrillDownsProps> = ({
                       <td className="py-3 px-2 text-center font-semibold text-slate-800">{row.reports_received}</td>
                       <td className="py-3 px-2 text-center font-medium text-emerald-600">{row.on_time}</td>
                       <td className="py-3 px-2 text-center font-medium text-rose-600">{row.delayed}</td>
-                      <td className="py-3 px-2 text-center font-medium text-teal-600">{row.reports_validated ?? 'N/A'}</td>
-                      <td className="py-3 px-2 text-center font-medium text-amber-600">{row.pending_validation ?? 'N/A'}</td>
+                      {/* <td className="py-3 px-2 text-center font-medium text-teal-600">{row.reports_validated ?? 'N/A'}</td> */}
+                      {/* <td className="py-3 px-2 text-center font-medium text-amber-600">{row.pending_validation ?? 'N/A'}</td> */}
                       <td className="py-3 px-2 text-center font-medium text-purple-600">{row.discrepancies ?? 'N/A'}</td>
                       <td className="py-3 px-3 text-right font-mono text-slate-600">
                         {row.average_delay > 0 ? `${row.average_delay}d` : '-'}
@@ -225,7 +225,7 @@ export const DrillDowns: React.FC<DrillDownsProps> = ({
                   <tr className="bg-slate-100 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                     <th className="py-2 px-3 border-r border-slate-200" rowSpan={2}>PIU Name</th>
                     <th className="py-2 px-3 font-semibold text-center border-r border-slate-200 text-blue-700 bg-blue-50/50" colSpan={4}>Survey Metrics</th>
-                    <th className="py-2 px-3 font-semibold text-center text-purple-700 bg-purple-50/50" colSpan={7}>Report Metrics</th>
+                    <th className="py-2 px-3 font-semibold text-center text-purple-700 bg-purple-50/50" colSpan={5}>Report Metrics</th>
                   </tr>
                   <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                     <th className="py-2 px-2 text-center bg-blue-50/30">Scheduled</th>
@@ -235,8 +235,8 @@ export const DrillDowns: React.FC<DrillDownsProps> = ({
                     <th className="py-2 px-2 text-center bg-purple-50/30">Received</th>
                     <th className="py-2 px-2 text-center bg-purple-50/30">On Time</th>
                     <th className="py-2 px-2 text-center bg-purple-50/30">Delayed</th>
-                    <th className="py-2 px-2 text-center bg-purple-50/30">Validated</th>
-                    <th className="py-2 px-2 text-center bg-purple-50/30">Pend. Val.</th>
+                    {/* <th className="py-2 px-2 text-center bg-purple-50/30">Validated</th> */}
+                    {/* <th className="py-2 px-2 text-center bg-purple-50/30">Pend. Val.</th> */}
                     <th className="py-2 px-2 text-center bg-purple-50/30">Discrep.</th>
                     <th className="py-2 px-3 text-right bg-purple-50/30">Avg Delay</th>
                   </tr>
@@ -259,8 +259,8 @@ export const DrillDowns: React.FC<DrillDownsProps> = ({
                       <td className="py-3 px-2 text-center font-semibold text-slate-800">{row.reports_received}</td>
                       <td className="py-3 px-2 text-center font-medium text-emerald-600">{row.on_time}</td>
                       <td className="py-3 px-2 text-center font-medium text-rose-600">{row.delayed}</td>
-                      <td className="py-3 px-2 text-center font-medium text-teal-600">{row.reports_validated ?? 'N/A'}</td>
-                      <td className="py-3 px-2 text-center font-medium text-amber-600">{row.pending_validation ?? 'N/A'}</td>
+                      {/* <td className="py-3 px-2 text-center font-medium text-teal-600">{row.reports_validated ?? 'N/A'}</td> */}
+                      {/* <td className="py-3 px-2 text-center font-medium text-amber-600">{row.pending_validation ?? 'N/A'}</td> */}
                       <td className="py-3 px-2 text-center font-medium text-purple-600">{row.discrepancies ?? 'N/A'}</td>
                       <td className="py-3 px-3 text-right font-mono text-slate-600">
                         {row.average_delay > 0 ? `${row.average_delay}d` : '-'}

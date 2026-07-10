@@ -394,9 +394,9 @@ export const useConnectionStatus = () => {
     queryFn: async () => {
       const res = await api.get('/health');
       return {
-        status: res.data.spreadsheet_connected ? 'Connected' : 'Spreadsheet Not Connected',
+        status: res.data.database_connected ? 'Connected' : 'Database Not Connected',
         spreadsheet_name: res.data.spreadsheet_name,
-        worksheets_count: res.data.worksheets_loaded,
+        worksheets_count: res.data.surveys_loaded,
         last_sync_time: res.data.last_sync,
         error_message: res.data.error_message || '',
       };

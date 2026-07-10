@@ -144,6 +144,9 @@ def get_provider_performance_data(df: pd.DataFrame) -> List[Dict[str, Any]]:
     """
     # Exclude empty provider names
     prov_series = get_column_series(df, ["DAS Provider Name", "Provider Name"])
+    if prov_series.empty:
+        return []
+        
     valid_prov_df = df[prov_series.astype(str).str.strip() != ""]
     
     if valid_prov_df.empty:

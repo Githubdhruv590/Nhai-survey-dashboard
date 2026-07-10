@@ -83,7 +83,10 @@ def convert_percentage_val(val) -> float:
     Safely converts a single cell containing number, string, or percentage (e.g. '95%', '0.95', 95, '-')
     to a float between 0.0 and 1.0.
     """
-    if pd.isna(val):
+    is_na = pd.isna(val)
+    if isinstance(is_na, (pd.Series, pd.DataFrame)):
+        is_na = is_na.all().all() if isinstance(is_na, pd.DataFrame) else is_na.all()
+    if is_na:
         return np.nan
     val_str = str(val).strip().replace(" ", "")
     if not val_str or val_str in ["-", "n/a", "na", "null", "#value!", "#ref!"]:
@@ -141,7 +144,10 @@ def generate_validation_report(sheets_dict: Dict[str, pd.DataFrame], df_details:
         # MCW Length
         mcw_col = get_column_series(df_valid, ["MCW Length Surveyed", "MCW Length Surveyed (Km)"])
         def clean_val(val):
-            if pd.isna(val): return 0.0
+            is_na = pd.isna(val)
+            if isinstance(is_na, (pd.Series, pd.DataFrame)):
+                is_na = is_na.all().all() if isinstance(is_na, pd.DataFrame) else is_na.all()
+            if is_na: return 0.0
             val_str = str(val).strip().replace(" ", "")
             if not val_str or val_str in ["-", "n/a", "na", "null", "#value!", "#ref!"]: return 0.0
             try: return float(val_str)
@@ -183,7 +189,10 @@ def clean_ro_display_name(val) -> str:
     """
     Cleans and normalizes RO Name to a canonical form for consistent presentation and filtering.
     """
-    if pd.isna(val):
+    is_na = pd.isna(val)
+    if isinstance(is_na, (pd.Series, pd.DataFrame)):
+        is_na = is_na.all().all() if isinstance(is_na, pd.DataFrame) else is_na.all()
+    if is_na:
         return "Unknown"
     name = str(val).strip()
     name_lower = name.lower()
@@ -364,10 +373,14 @@ def compile_master_data(sheets_dict: Dict[str, pd.DataFrame]) -> Tuple[pd.DataFr
     # Ingestion Data Normalization / Cleaning Layer
     # ----------------------------------------------------
     if not df_merged.empty:
+        df_merged = df_merged.loc[:, ~df_merged.columns.duplicated()].copy()
         # 1. Survey Status Normalization
         if "Survey Status" in df_merged.columns:
             def normalize_status_val(val):
-                if pd.isna(val):
+                is_na = pd.isna(val)
+                if isinstance(is_na, (pd.Series, pd.DataFrame)):
+                    is_na = is_na.all().all() if isinstance(is_na, pd.DataFrame) else is_na.all()
+                if is_na:
                     return "pending"
                 val_str = str(val).lower().strip()
                 if val_str in ["completed", "complete", "on time", "delayed", "late", "yes", "done"]:
@@ -388,7 +401,10 @@ def compile_master_data(sheets_dict: Dict[str, pd.DataFrame]) -> Tuple[pd.DataFr
         for num_col in ["Total Delay", "MCW Length Surveyed", "SR Length Surveyed"]:
             if num_col in df_merged.columns:
                 def clean_float_val(val):
-                    if pd.isna(val):
+                    is_na = pd.isna(val)
+                    if isinstance(is_na, (pd.Series, pd.DataFrame)):
+                        is_na = is_na.all().all() if isinstance(is_na, pd.DataFrame) else is_na.all()
+                    if is_na:
                         return 0.0
                     val_str = str(val).strip().replace(" ", "")
                     if not val_str or val_str in ["-", "n/a", "na", "null", "#value!", "#ref!"]:
@@ -562,7 +578,7 @@ def calculate_kpis(df: pd.DataFrame) -> Dict[str, Any]:
     reports_on_time = reports_received - reports_delayed
 
     # ── SECTION 3: Defect Analytics ───────────────────────────────────────────
-    def_rep_series = get_column_series(df, ["Defects Reported (#)", "Defects Reported"])
+    def_rep_series = get_column_series(df, ["Defects Reported (#)", "Defects Reported", "Total Defects Reported"])
     def_rep_vals = pd.to_numeric(
         def_rep_series.astype(str).str.strip().replace(["", "-", "n/a", "nan"], pd.NA), errors="coerce"
     ) if def_rep_series is not None else None
@@ -582,6 +598,8 @@ def calculate_kpis(df: pd.DataFrame) -> Dict[str, Any]:
 
     # ── SECTION 5: Report Validation (optional) ───────────────────────────────
     def _has_value(series: pd.Series) -> pd.Series:
+        if series.empty:
+            return pd.Series([], dtype=bool)
         return series.astype(str).str.strip().apply(
             lambda v: bool(v and v not in ["nan", "none", "", "NaT"])
         )

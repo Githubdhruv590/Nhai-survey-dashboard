@@ -250,7 +250,7 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ kpis, isLoading }) => 
       </div>
 
       {/* ── Section 4: Validation ── */}
-      {(kpis.reports_validated !== null || kpis.piu_communication_completed !== null) && (
+      {(false) && (
         <div>
           <SectionHeader
             icon={<ShieldCheck className="h-4 w-4" />}

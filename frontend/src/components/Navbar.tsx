@@ -64,10 +64,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span className="text-slate-200 font-medium">
                   {isConnected ? (
                     <span>
-                      Connected to <span className="font-bold text-[#FA8253]">{connStatus.spreadsheet_name}</span> ({connStatus.worksheets_count} sheets)
+                      Database <span className="font-bold text-emerald-400">Connected</span> ({connStatus.worksheets_count} surveys loaded)
                     </span>
                   ) : (
-                    <span>Spreadsheet Not Connected</span>
+                    <span>Database Not Connected</span>
                   )}
                 </span>
               </div>
