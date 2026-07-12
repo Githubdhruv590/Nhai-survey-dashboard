@@ -33,13 +33,45 @@ def get_filters(db: Session = Depends(get_db)):
         pius = [r[0] for r in db.query(SurveyMaster.piu_name).distinct().all() if r[0]]
         statuses = [r[0] for r in db.query(SurveyMaster.survey_status).distinct().all() if r[0]]
         
-        # Build Year/Month/Week hierarchy - simplified for now, as full parsing is complex
-        # Just returning empty date arrays to match old API if no date filters are used,
-        # or we could fetch dates from scheduled_survey_date and parse them.
-        years = []
-        months = ["January","February","March","April","May","June",
-                       "July","August","September","October","November","December"]
-        weeks = []
+        # Dynamically build Year/Month/Week hierarchy from SurveyMaster dates
+        from backend.services.week_engine import parse_date, get_week_boundaries, get_week_label
+        
+        dates_raw = [r[0] for r in db.query(SurveyMaster.scheduled_survey_date).distinct().all() if r[0]]
+        
+        years_set = set()
+        months_set = set()
+        weeks_dict = {}
+        
+        for d_str in dates_raw:
+            dt = parse_date(d_str)
+            if dt:
+                years_set.add(dt.year)
+                months_set.add(dt.strftime("%B"))
+                
+                mon, sun = get_week_boundaries(dt)
+                
+                # A week belongs entirely to the month in which its Monday falls
+                # Ensure the Monday's month and year are available in the filters
+                years_set.add(mon.year)
+                months_set.add(mon.strftime("%B"))
+                
+                label = get_week_label(mon, sun)
+                if label not in weeks_dict:
+                    weeks_dict[label] = {
+                        "label": label,
+                        "start": mon.strftime("%Y-%m-%d"),
+                        "end": sun.strftime("%Y-%m-%d"),
+                        "year": mon.year,
+                        "month": mon.strftime("%B")
+                    }
+                    
+        years = sorted(list(years_set))
+        
+        month_order = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+        months = sorted(list(months_set), key=lambda m: month_order.index(m) if m in month_order else 99)
+        
+        weeks_list = sorted(list(weeks_dict.values()), key=lambda x: x["start"])
+        weeks = [WeekOption(**w) for w in weeks_list]
         
         return FilterOptions(
             years=years,
@@ -78,7 +110,17 @@ def get_dashboard(
         df_filtered = fetch_filtered_dataframe(db, year=year, month=month, week_label=week_label, zone=zone, ro=ro, piu=piu, status=status, search=search)
         if df_filtered.empty:
             return DashboardResponse(
-                kpis=KPIMetrics(total_surveys_scheduled=0, completed=0, pending=0, scheduled=0, cancelled=0, completion_rate=0.0, completed_surveys=0, reports_expected=0, reports_received=0, reports_on_time=0, reports_delayed=0),
+                kpis=KPIMetrics(
+                    total_surveys_scheduled=0,
+                    scheduled=0,
+                    completed=0,
+                    pending=0,
+                    completion_rate=0.0,
+                    reports_received=0,
+                    on_time=0,
+                    delayed=0,
+                    average_delay=0.0
+                ),
                 zone_table=[],
                 charts=ChartData(completion_pie=[], zone_comparison=[], weekly_trend=[], delay_distribution=[], provider_performance=[])
             )

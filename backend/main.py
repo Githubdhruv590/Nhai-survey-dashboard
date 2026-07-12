@@ -81,9 +81,16 @@ def health_check(db = Depends(get_db)):
         db.execute(text("SELECT 1"))
         db_status = "Connected"
         
+        from datetime import timezone, timedelta
         # Get last sync time
         last_refresh = db.query(RefreshHistory).filter(RefreshHistory.status == 'SUCCESS').order_by(desc(RefreshHistory.ended_at)).first()
-        last_sync = last_refresh.ended_at.strftime('%Y-%m-%d %I:%M %p') if last_refresh and last_refresh.ended_at else "Never"
+        if last_refresh and last_refresh.ended_at:
+            # Render servers are in UTC. Convert explicitly to IST (UTC+05:30)
+            utc_dt = last_refresh.ended_at.replace(tzinfo=timezone.utc)
+            ist_dt = utc_dt + timedelta(hours=5, minutes=30)
+            last_sync = ist_dt.strftime('%Y-%m-%d %I:%M %p')
+        else:
+            last_sync = "Never"
         
         # Get surveys loaded
         survey_count = db.query(SurveyMaster).count()
