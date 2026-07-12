@@ -281,7 +281,29 @@ def fetch_metadata_api() -> Tuple[str, List[str]]:
 
     spreadsheet_name = sheet_metadata.get("properties", {}).get("title", "NHAI Survey Spreadsheet")
     sheets = sheet_metadata.get("sheets", [])
-    sheet_names = [s.get("properties", {}).get("title") for s in sheets if s.get("properties", {}).get("title")]
+    
+    sheet_names = []
+    for s in sheets:
+        props = s.get("properties", {})
+        title = props.get("title")
+        if not title:
+            continue
+            
+        if props.get("hidden", False):
+            logger.info(f'Skipping worksheet: "{title}" (Reason: Hidden worksheet)')
+            continue
+            
+        title_lower = title.lower()
+        skip = False
+        for keyword in ["copy", "duplicate", "backup", "test", "sample"]:
+            if keyword in title_lower:
+                logger.info(f'Skipping worksheet: "{title}" (Reason: Duplicate worksheet)')
+                skip = True
+                break
+                
+        if not skip:
+            sheet_names.append(title)
+            
     return spreadsheet_name, sheet_names
 
 def fetch_worksheet_api(sheet_name: str) -> pd.DataFrame:

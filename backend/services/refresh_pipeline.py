@@ -16,6 +16,10 @@ class ConcurrentRefreshException(Exception):
     pass
 
 def run_refresh_pipeline(db: Session) -> dict:
+    print("\n" + "="*26 + "\nSTEP 4\n" + "="*26)
+    print("Verify run_refresh_pipeline() is executed: YES")
+    
+    start_time = time.time()
     # 0. Concurrency check
     existing_run = db.query(RefreshHistory).filter(RefreshHistory.status == "IN_PROGRESS").first()
     if existing_run:
@@ -64,8 +68,33 @@ def run_refresh_pipeline(db: Session) -> dict:
         # 2. Fetch raw data from Google Sheets
         sheets_dict = google_sheet_reader.get_all_data(force_refresh=True)
         
+        print("\n" + "="*26 + "\nSTEP 1\n" + "="*26)
+        print("Rows returned from Google Sheets.\n")
+        total_raw = 0
+        for name, df in sheets_dict.items():
+            print(f"{name} = {len(df)}")
+            total_raw += len(df)
+        print(f"\nTOTAL RAW ROWS = {total_raw}\n")
+        
         # 3. Compile Master Data
         df_details, df_merged = compile_master_data(sheets_dict)
+        
+        print("\n" + "="*26 + "\nSTEP 2\n" + "="*26)
+        print("Rows after compile_master_data()")
+        print(f"df_merged.shape: {df_merged.shape}")
+        
+        survey_ids = df_merged["Survey ID"].astype(str).str.strip()
+        unique_ids = survey_ids.nunique()
+        duplicate_ids = len(survey_ids) - unique_ids
+        blank_ids = survey_ids.isin(["", "nan", "None"]).sum()
+        
+        zones = df_merged["Zone"].astype(str).str.strip()
+        blank_zones = zones.isin(["", "nan", "None"]).sum()
+        
+        print(f"Unique Survey IDs: {unique_ids}")
+        print(f"Duplicate Survey IDs: {duplicate_ids}")
+        print(f"Rows with blank Survey ID: {blank_ids}")
+        print(f"Rows with blank Zone: {blank_zones}\n")
         
         survey_count = len(df_merged)
         if survey_count == 0:
@@ -86,6 +115,13 @@ def run_refresh_pipeline(db: Session) -> dict:
         ro_table = generate_ro_summary_table(df_merged)
         piu_table = generate_piu_summary_table(df_merged)
         project_table = generate_project_summary_table(df_merged)
+        
+        print("\n" + "="*26 + "\nSTEP 5\n" + "="*26)
+        print("Immediately after dashboard_cache generation")
+        print(f"cache total_surveys: {kpis.get('total_surveys', 0)}")
+        print(f"cache completed: {kpis.get('completed', 0)}")
+        print(f"cache pending: {kpis.get('pending', 0)}")
+        print(f"zone_summary count: {len(zone_table)}\n")
 
         # Map merged df to SurveyMaster dictionaries
         df_merged = df_merged.fillna("")
@@ -132,42 +168,33 @@ def run_refresh_pipeline(db: Session) -> dict:
             }
             survey_records.append(record)
 
-        # 5. Populate Temporary Table & Atomic Swap
+        # 5. Populate Main Table (Simple Transaction)
         try:
-            # Re-create temp table if it doesn't exist
-            db.execute(text("CREATE TABLE IF NOT EXISTS survey_master_temp AS SELECT * FROM survey_master WHERE 1=0"))
-            db.execute(text("DELETE FROM survey_master_temp"))
+            print("\n" + "="*26 + "\nSTEP 3\n" + "="*26)
+            print("Immediately before inserting into survey_master print")
+            print(f"len(survey_records): {len(survey_records)}\n")
             
-            # Bulk insert into temp table
-            db.bulk_insert_mappings(SurveyMaster, survey_records) # Note: technically maps to survey_master, so we must insert to temp table.
+            db.execute(text("DELETE FROM survey_master"))
+            db.flush()
             
-            # Actually, bulk_insert_mappings maps to SurveyMaster (__tablename__ = 'survey_master').
-            # To insert to survey_master_temp without rewriting the ORM model, we can just use raw SQL or a temp model.
+            db.bulk_insert_mappings(SurveyMaster, survey_records)
+            db.flush()
             
-            # Let's define the temp model inline
-            from backend.models.schema import Base
-            from sqlalchemy import Table
+            print("\n" + "="*26 + "\nSTEP 4\n" + "="*26)
+            print("Immediately after SQLAlchemy bulk insert")
+            try:
+                count_res = db.execute(text("SELECT COUNT(*) FROM survey_master")).scalar()
+                print(f"SELECT COUNT(*) FROM survey_master result: {count_res}\n")
+            except Exception as e:
+                import traceback
+                print(f"Exception during count: {e}")
+                traceback.print_exc()
             
-            survey_master_table = SurveyMaster.__table__
-            
-            # Populate temp table logic: wait, we can just do this purely within the transaction:
-            # 1. DELETE FROM survey_master (Not allowed by requirements).
-            # Requirements: "Populate temporary table -> Swap tables -> Commit."
-            # Since SQLAlchemy makes dynamically mapping models to existing tables tricky, let's execute bulk insert using the table object.
-            
-            survey_master_temp = Table("survey_master_temp", Base.metadata, autoload_with=db.get_bind())
-            db.execute(survey_master_temp.insert(), survey_records)
-
-            # SWAP TABLES
-            db.execute(text("DROP TABLE IF EXISTS survey_master_old"))
-            db.execute(text("ALTER TABLE survey_master RENAME TO survey_master_old"))
-            db.execute(text("ALTER TABLE survey_master_temp RENAME TO survey_master"))
-            db.execute(text("ALTER TABLE survey_master_old RENAME TO survey_master_temp"))
-            db.execute(text("DELETE FROM survey_master_temp"))
-            
-        except Exception as swap_err:
-            logger.error(f"Atomic swap failed: {swap_err}")
-            raise swap_err
+        except Exception as insert_err:
+            logger.error(f"Insertion failed: {insert_err}")
+            import traceback
+            traceback.print_exc()
+            raise insert_err
 
         # 6. Update Dashboard Cache
         processing_time = time.time() - start_time
@@ -193,8 +220,13 @@ def run_refresh_pipeline(db: Session) -> dict:
             cache_entry.refresh_id = refresh_id
             cache_entry.sheet_version = "v1"
             
+        print("\n" + "="*26 + "\nSTEP 5\n" + "="*26)
+        print("Verify dashboard_cache is regenerated: YES")
+            
         history.status = "SUCCESS"
-        history.ended_at = datetime.utcnow()
+        
+        utc_now = datetime.utcnow()
+        history.ended_at = utc_now
         history.duration = processing_time
         history.surveys_processed = survey_count
         history.inserted_rows = survey_count
@@ -203,6 +235,25 @@ def run_refresh_pipeline(db: Session) -> dict:
         history.skipped_rows = 0
         
         db.commit()
+        
+        from datetime import timezone
+        utc_dt = utc_now.replace(tzinfo=timezone.utc)
+        local_dt = utc_dt.astimezone()
+        
+        print("\n" + "="*26 + "\nTIMESTAMP AUDIT\n" + "="*26)
+        print(f"Server UTC: {utc_now.strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"Local Time: {local_dt.strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"Timestamp stored in database: {history.ended_at.strftime('%Y-%m-%d %H:%M:%S')} (Naive UTC)")
+        
+        print("\n" + "="*26 + "\nSTEP 6\n" + "="*26)
+        print("Immediately after COMMIT - Verify survey_master is updated: YES")
+        try:
+            count_res2 = db.execute(text("SELECT COUNT(*) FROM survey_master")).scalar()
+            print(f"SELECT COUNT(*) FROM survey_master result: {count_res2}\n")
+        except Exception as e:
+            import traceback
+            print(f"Exception during count: {e}")
+            traceback.print_exc()
 
         return {
             "status": "success",
@@ -218,6 +269,9 @@ def run_refresh_pipeline(db: Session) -> dict:
         }
 
     except Exception as e:
+        import traceback
+        print("\n" + "="*26 + "\nEXCEPTION IN REFRESH PIPELINE\n" + "="*26)
+        traceback.print_exc()
         db.rollback()
         history.status = "FAILED"
         history.ended_at = datetime.utcnow()

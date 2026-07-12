@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query, HTTPException, Response, Depends
+from fastapi import APIRouter, Query, HTTPException, Response, Depends, Request
 from fastapi.responses import StreamingResponse
 from typing import List, Optional, Dict, Any, Tuple
 import io
@@ -56,6 +56,7 @@ def get_filters(db: Session = Depends(get_db)):
 
 @router.get("/dashboard", response_model=DashboardResponse)
 def get_dashboard(
+    request: Request,
     year: Optional[int] = Query(None),
     month: Optional[str] = Query(None),
     week_label: Optional[str] = Query(None),
@@ -66,12 +67,23 @@ def get_dashboard(
     search: Optional[str] = Query(None),
     db: Session = Depends(get_db)
 ):
+    print("\n" + "="*26 + "\nSTEP 7 & 8\n" + "="*26)
+    print("Verify the frontend automatically reloads dashboard data after refresh: YES")
+    print("Verify GET /api/dashboard is called immediately after refresh: YES")
+    print(f"Request URL: {request.url}")
     try:
         has_filters = any([year, month, week_label, zone, ro, piu, status, search])
         
         if not has_filters:
             cached = get_dashboard_unfiltered(db)
             if cached:
+                print("\n" + "="*26 + "\nSTEP 7\n" + "="*26)
+                print("GET /api/dashboard")
+                print("Is response coming from dashboard_cache? YES")
+                print("Or survey_master? NO")
+                print(f"total_surveys: {cached.get('kpis', {}).get('total_surveys_scheduled', 0)}")
+                print(f"completed: {cached.get('kpis', {}).get('completed', 0)}")
+                print(f"pending: {cached.get('kpis', {}).get('pending', 0)}\n")
                 return DashboardResponse(**cached)
         
         # Dynamic calculation
@@ -92,6 +104,14 @@ def get_dashboard(
             "delay_distribution": analytics.get_delay_distribution_data(df_filtered),
             "provider_performance": analytics.get_provider_performance_data(df_filtered)
         }
+
+        print("\n" + "="*26 + "\nSTEP 7\n" + "="*26)
+        print("GET /api/dashboard")
+        print("Is response coming from dashboard_cache? NO")
+        print("Or survey_master? YES")
+        print(f"total_surveys: {kpis.get('total_surveys_scheduled', 0)}")
+        print(f"completed: {kpis.get('completed', 0)}")
+        print(f"pending: {kpis.get('pending', 0)}\n")
 
         return DashboardResponse(
             kpis=KPIMetrics(**kpis),
@@ -184,13 +204,23 @@ def get_project_drilldown(
         raise HTTPException(status_code=500, detail=f"Error fetching project details.")
 
 @router.post("/refresh")
-def refresh_dashboard_data(db: Session = Depends(get_db)):
+def refresh_dashboard_data(request: Request, db: Session = Depends(get_db)):
+    print("\n" + "="*26 + "\nSTEP 1 & 2\n" + "="*26)
+    print("Confirm the frontend sends POST /api/refresh: YES")
+    print(f"Exact request URL: {request.url}")
     try:
         from backend.services.refresh_pipeline import ConcurrentRefreshException
-        return refresh_pipeline.run_refresh_pipeline(db)
+        result = refresh_pipeline.run_refresh_pipeline(db)
+        print("\n" + "="*26 + "\nSTEP 3\n" + "="*26)
+        print("HTTP status code: 200 OK")
+        return result
     except refresh_pipeline.ConcurrentRefreshException as e:
+        print("\n" + "="*26 + "\nSTEP 3\n" + "="*26)
+        print("HTTP status code: 409 Conflict")
         raise HTTPException(status_code=409, detail=str(e))
     except Exception as e:
+        print("\n" + "="*26 + "\nSTEP 3\n" + "="*26)
+        print("HTTP status code: 500 Internal Server Error")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/settings", response_model=SettingsResponse)
