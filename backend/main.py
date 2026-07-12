@@ -38,6 +38,34 @@ def startup_db():
     Base.metadata.create_all(bind=engine)
     logger.info("Database tables initialized successfully.")
     
+    print("\n" + "="*40)
+    print("FRONTEND SERVING DIAGNOSTICS")
+    frontend_dist = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "dist")
+    print(f"1. Absolute frontend_dist path: {os.path.abspath(frontend_dist)}")
+    exists = os.path.exists(frontend_dist)
+    print(f"2. os.path.exists(frontend_dist): {exists}")
+    if not exists:
+        print(f"3. os.getcwd(): {os.getcwd()}")
+    print(f"4. os.path.dirname(__file__): {os.path.dirname(__file__)}")
+    
+    parent_dir = os.path.dirname(os.path.dirname(__file__))
+    print(f"5a. Contents of parent directory ({parent_dir}):")
+    try:
+        print(os.listdir(parent_dir))
+    except Exception as e:
+        print(f"Error reading parent dir: {e}")
+        
+    frontend_dir = os.path.join(parent_dir, "frontend")
+    print(f"5b. Contents of frontend directory ({frontend_dir}):")
+    try:
+        print(os.listdir(frontend_dir))
+    except Exception as e:
+        print(f"Error reading frontend dir: {e}")
+        
+    index_html = os.path.join(frontend_dist, "index.html")
+    print(f"6. Final path where index.html is expected: {os.path.abspath(index_html)}")
+    print("="*40 + "\n")
+    
     # We do NOT run an automatic refresh here. 
     # Data is refreshed exclusively via POST /api/refresh.
 
@@ -72,6 +100,35 @@ def health_check(db = Depends(get_db)):
         "surveys_loaded": survey_count,
         "error_message": db_status if db_status != "Connected" else ""
     }
+
+# --- Serve Frontend Static Files ---
+frontend_dist = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "dist")
+
+if os.path.exists(frontend_dist):
+    assets_dir = os.path.join(frontend_dist, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+        
+    @app.get("/{catchall:path}")
+    def serve_spa(catchall: str):
+        # Ignore API routes and let them 404 naturally if missing
+        if catchall.startswith("api/") or catchall == "health":
+            from fastapi import HTTPException
+            raise HTTPException(status_code=404, detail="Not Found")
+            
+        # Serve exact file if it exists (e.g. favicon.ico, logo.png)
+        file_path = os.path.join(frontend_dist, catchall)
+        if catchall and os.path.isfile(file_path):
+            return FileResponse(file_path)
+            
+        # SPA Fallback: serve index.html
+        index_path = os.path.join(frontend_dist, "index.html")
+        if os.path.exists(index_path):
+            return FileResponse(index_path)
+            
+        return {"error": "Frontend build not found"}
+else:
+    logger.warning("Frontend dist directory not found. Static files will not be served.")
 
 if __name__ == "__main__":
     uvicorn.run("backend.main:app", host="0.0.0.0", port=8000, reload=True)
