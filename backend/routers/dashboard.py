@@ -227,10 +227,23 @@ def get_project_drilldown(
 
 @router.post("/refresh")
 def refresh_dashboard_data(db: Session = Depends(get_db)):
+    print("\n" + "="*40)
+    print("REFRESH PIPELINE CALL CHAIN TRACE")
+    print("1. Endpoint handling request: POST /api/refresh")
+    print("2. Function executing: backend.routers.dashboard.refresh_dashboard_data")
+    import inspect
+    import backend.services.refresh_pipeline as rp
+    import os
+    print(f"3. Resolving run_refresh_pipeline(): {hasattr(rp, 'run_refresh_pipeline')}")
+    print(f"4. Absolute file path of refresh_pipeline.py: {os.path.abspath(rp.__file__)}")
+    
+    # Check if we're somehow importing the wrong module or function
+    print(f"5. Target function signature: {inspect.signature(rp.run_refresh_pipeline)}")
+    print("="*40 + "\n")
     try:
         from backend.services.refresh_pipeline import ConcurrentRefreshException
-        return refresh_pipeline.run_refresh_pipeline(db)
-    except refresh_pipeline.ConcurrentRefreshException as e:
+        return rp.run_refresh_pipeline(db)
+    except rp.ConcurrentRefreshException as e:
         raise HTTPException(status_code=409, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

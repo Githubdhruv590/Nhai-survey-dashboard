@@ -155,18 +155,41 @@ def run_refresh_pipeline(db: Session) -> dict:
             # Requirements: "Populate temporary table -> Swap tables -> Commit."
             # Since SQLAlchemy makes dynamically mapping models to existing tables tricky, let's execute bulk insert using the table object.
             
-            survey_master_temp = Table("survey_master_temp", Base.metadata, autoload_with=db.get_bind())
+            print("STEP 1 - CREATE TABLE START")
+            db.execute(text("DROP TABLE IF EXISTS survey_master_temp"))
+            db.execute(text("CREATE TABLE survey_master_temp (LIKE survey_master INCLUDING ALL)"))
+            print("STEP 2 - CREATE TABLE SUCCESS")
+            
+            print("STEP 3 - INSERT START")
+            from sqlalchemy import MetaData
+            temp_meta = MetaData()
+            survey_master_temp = Table("survey_master_temp", temp_meta, *(c.copy() for c in survey_master_table.columns))
             db.execute(survey_master_temp.insert(), survey_records)
+            print("STEP 4 - INSERT SUCCESS")
 
             # SWAP TABLES
+            print("STEP 5 - DROP START")
             db.execute(text("DROP TABLE IF EXISTS survey_master_old"))
+            print("STEP 6 - DROP SUCCESS")
+            
+            print("STEP 7 - ALTER START")
             db.execute(text("ALTER TABLE survey_master RENAME TO survey_master_old"))
             db.execute(text("ALTER TABLE survey_master_temp RENAME TO survey_master"))
             db.execute(text("ALTER TABLE survey_master_old RENAME TO survey_master_temp"))
             db.execute(text("DELETE FROM survey_master_temp"))
+            print("STEP 8 - ALTER SUCCESS")
             
         except Exception as swap_err:
+            import traceback
             logger.error(f"Atomic swap failed: {swap_err}")
+            print("\n--- ATOMIC SWAP EXCEPTION DIAGNOSTICS ---")
+            traceback.print_exc()
+            print(f"repr(e): {repr(swap_err)}")
+            print(f"type(e): {type(swap_err)}")
+            print(f"str(e): {str(swap_err)}")
+            if hasattr(swap_err, 'orig'):
+                print(f"e.orig: {swap_err.orig}")
+            print("-----------------------------------------\n")
             raise swap_err
 
         # 6. Update Dashboard Cache
@@ -202,7 +225,9 @@ def run_refresh_pipeline(db: Session) -> dict:
         history.updated_rows = 0
         history.skipped_rows = 0
         
+        print("STEP 9 - COMMIT START")
         db.commit()
+        print("STEP 10 - COMMIT SUCCESS")
 
         return {
             "status": "success",

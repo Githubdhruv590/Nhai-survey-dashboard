@@ -163,6 +163,21 @@ def get_auth_headers_and_params(creds_file: Optional[str] = None, api_key: Optio
     c_file = str(c_file).strip() if c_file else ""
     a_key = str(a_key).strip() if a_key else ""
     
+    import os
+    print("\n" + "="*40)
+    print("AUTHENTICATION DIAGNOSTICS")
+    print(f"Passed creds_file arg: {creds_file}")
+    print(f"Passed api_key arg: {api_key}")
+    print(f"Config GOOGLE_CREDENTIALS_FILE: {settings.GOOGLE_CREDENTIALS_FILE}")
+    print(f"Config GOOGLE_API_KEY: {settings.GOOGLE_API_KEY}")
+    if c_file:
+        print(f"Resolved Absolute Path: {os.path.abspath(c_file)}")
+        print(f"os.path.exists(path): {os.path.exists(c_file)}")
+    else:
+        print("Resolved Absolute Path: None")
+        print("os.path.exists(path): False")
+    print("="*40 + "\n")
+    
     # 1. Try Service Account if credentials file exists on disk
     if c_file and os.path.exists(c_file):
         try:
@@ -170,8 +185,10 @@ def get_auth_headers_and_params(creds_file: Optional[str] = None, api_key: Optio
                 now = time.time()
                 # Use cached token if still valid (tokens expire in 3600 seconds, check 5 mins buffer)
                 if _auth_token is not None and now < _auth_token_expiry - 300:
+                    print("Credentials Token Status: LOADED ONCE (Using Cached Token)")
                     return {"Authorization": f"Bearer {_auth_token}"}, {}, "Service Account"
                     
+                print("Credentials Token Status: RELOADING (Fetching new Token)")
                 scopes = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
                 creds = service_account.Credentials.from_service_account_file(c_file, scopes=scopes)
                 creds.refresh(AuthRequest())

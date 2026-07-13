@@ -62,8 +62,40 @@ def fetch_filtered_dataframe(db: Session, **kwargs) -> "pd.DataFrame":
             if kwargs.get('month'):
                 df = df[df["Scheduled Survey Date parsed"].dt.strftime('%B').str.lower() == str(kwargs['month']).lower()]
             if kwargs.get('week_label'):
-                pass # Skipping complex week parsing for brevity, assuming standard dashboard uses no week filters initially
+                week_label = kwargs['week_label']
+                print("\n" + "="*40)
+                print("WEEK FILTER DIAGNOSTICS")
+                print(f"1. received week_label: {week_label}")
+                rows_before = len(df)
+                print(f"4. dataframe rows before week filtering: {rows_before}")
+                
+                from backend.services.week_engine import get_unique_weeks, filter_by_week
+                # Extract the boundaries from the current dataframe to resolve the label
+                unique_weeks = get_unique_weeks(df, "scheduled_survey_date")
+                target_week = next((w for w in unique_weeks if w["label"] == week_label), None)
+                
+                if target_week:
+                    start_str = target_week["start"]
+                    end_str = target_week["end"]
+                    print(f"2. computed start_date: {start_str}")
+                    print(f"3. computed end_date: {end_str}")
+                    df = filter_by_week(df, start_str, end_str, "scheduled_survey_date")
+                else:
+                    print("2. computed start_date: None")
+                    print("3. computed end_date: None")
+                    print("Reason for failure: Could not map week_label to start/end dates. Returning empty.")
+                    # If the week doesn't map to anything, it means 0 surveys.
+                    df = df.iloc[0:0] 
+                    
+                rows_after = len(df)
+                print(f"5. dataframe rows after week filtering: {rows_after}")
+                
+                if rows_before == rows_after and rows_before > 0:
+                    print("6. Note: Row count identical before/after week filter. Reason: The earlier year/month filters already narrowed the dataframe exactly to this single week's rows, or the week contains all remaining data.")
+                print("="*40 + "\n")
+                
         except Exception as e:
+            print(f"Date filter error: {e}")
             pass
             
     # Remap DB columns back to what the summary_engine expects
