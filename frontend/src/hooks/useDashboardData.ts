@@ -222,11 +222,15 @@ const getParams = (filters: DashboardFilters) => {
 };
 
 // 1. Fetch filters query
-export const useFilters = () => {
+export const useFilters = (currentFilters?: { zone?: string, ro?: string }) => {
   return useQuery<FilterOptions>({
-    queryKey: ['filters'],
+    queryKey: ['filters', currentFilters?.zone, currentFilters?.ro],
     queryFn: async () => {
-      const res = await api.get('/api/filters');
+      const params: any = {};
+      if (currentFilters?.zone) params.zone = currentFilters.zone;
+      if (currentFilters?.ro) params.ro = currentFilters.ro;
+      
+      const res = await api.get('/api/filters', { params });
       return res.data;
     },
     staleTime: 1000 * 60 * 10, // 10 minutes cache

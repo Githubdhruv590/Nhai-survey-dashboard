@@ -63,9 +63,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span className={`h-2 w-2 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500 animate-pulse'}`} />
                 <span className="text-slate-200 font-medium">
                   {isConnected ? (
-                    <span>
-                      Database <span className="font-bold text-emerald-400">Connected</span> ({connStatus.worksheets_count} surveys loaded)
-                    </span>
+                    <div className="flex items-center">
+                      <span>Database <span className="font-bold text-emerald-400">Connected</span></span>
+                      <span className="text-slate-400 ml-2 border-l border-slate-700 pl-2">
+                        Active Surveys: <span className="font-bold text-slate-200">{connStatus.worksheets_count}</span>
+                      </span>
+                    </div>
                   ) : (
                     <span>Database Not Connected</span>
                   )}
@@ -77,7 +80,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {connStatus?.last_sync_time && (
               <div className="hidden lg:flex items-center space-x-1.5 text-xs text-slate-400">
                 {isRefreshing && <Loader2 className="h-3.5 w-3.5 animate-spin text-nhai-orange mr-0.5" />}
-                <span className="font-semibold text-slate-300">Last Synced:</span>
+                <span className="font-semibold text-slate-300">Last Successful Sync:</span>
                 <span className="font-mono">{connStatus.last_sync_time.split(' ')[1] || connStatus.last_sync_time}</span>
               </div>
             )}

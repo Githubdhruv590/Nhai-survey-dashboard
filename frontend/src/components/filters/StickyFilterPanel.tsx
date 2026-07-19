@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { getExportUrl } from '../../hooks/useDashboardData';
 import type { FilterOptions, DashboardFilters, WeekOption } from '../../hooks/useDashboardData';
-import { Search, RotateCw, Download, Printer, Filter, X, FileSpreadsheet, FileText, Calendar, MapPin, ChevronDown } from 'lucide-react';
+import { Search, RotateCw, Download, Printer, Filter, X, FileSpreadsheet, FileText, Calendar, MapPin, ChevronDown, Check } from 'lucide-react';
 
 interface StickyFilterPanelProps {
   filters: DashboardFilters;
@@ -49,6 +49,20 @@ export const StickyFilterPanel: React.FC<StickyFilterPanelProps> = ({
 }) => {
   const [showExports, setShowExports] = useState(false);
   const [tempSearch, setTempSearch] = useState(filters.search || '');
+  const [wasRefreshing, setWasRefreshing] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    if (isRefreshing) {
+      setWasRefreshing(true);
+      setShowSuccess(false);
+    } else if (wasRefreshing && !isRefreshing) {
+      setShowSuccess(true);
+      setWasRefreshing(false);
+      const timer = setTimeout(() => setShowSuccess(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isRefreshing, wasRefreshing]);
 
   // Cascaded months based on selected year
   const filteredMonths = useMemo(() => {
@@ -213,6 +227,32 @@ export const StickyFilterPanel: React.FC<StickyFilterPanelProps> = ({
                 </button>
               )}
             </div>
+            
+            {/* Refresh Button */}
+            <div className="shrink-0 ml-1">
+              <button type="button" onClick={onRefresh} disabled={isRefreshing}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-sm border
+                  ${isRefreshing 
+                    ? 'bg-blue-50 text-blue-500 border-blue-100 cursor-not-allowed pointer-events-none' 
+                    : showSuccess
+                    ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                    : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700 hover:border-slate-300'
+                  }`}
+                title="Reload data from Google Sheets">
+                {showSuccess ? (
+                  <>
+                    <Check className="h-3.5 w-3.5 text-emerald-500" />
+                    <span>Refreshed</span>
+                  </>
+                ) : (
+                  <>
+                    <RotateCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin text-blue-500' : 'text-slate-400'}`} />
+                    <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
+                  </>
+                )}
+              </button>
+            </div>
+            
             <button type="submit" className="hidden">Search</button>
           </div>
 
@@ -252,12 +292,6 @@ export const StickyFilterPanel: React.FC<StickyFilterPanelProps> = ({
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
-              <button type="button" onClick={onRefresh}
-                className={`flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${isRefreshing ? 'opacity-70 pointer-events-none' : ''}`}
-                title="Reload data from Google Sheets">
-                <RotateCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
-                <span>Refresh</span>
-              </button>
 
               <button type="button" onClick={() => window.print()}
                 className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition">

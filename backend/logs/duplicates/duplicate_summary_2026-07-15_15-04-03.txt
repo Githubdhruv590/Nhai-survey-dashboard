@@ -1,0 +1,750 @@
+Duplicate ID: 17638
+Occurrence Count: 2
+
+Survey IDs: ['N/04022/02006/TN_001_230626', 'N/04022/02006/TN_001_230626']
+
+Project Names: ['Operation & Maintenance and Providing Incident Management Services on Tambaram to Tindivanam Section of NH-32 (Old NH-45) from Km. 28+000 to Km. 121+000 in the State of Tamil Nadu', 'Operation & Maintenance and Providing Incident Management Services on Tambaram to Tindivanam Section of NH-32 (Old NH-45) from Km. 28+000 to Km. 121+000 in the State of Tamil Nadu']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Chengalpattu', 'Chengalpattu']
+
+Spreadsheet Row Index: [0, 177]
+--------------------------------------------------
+Duplicate ID: 17639
+Occurrence Count: 2
+
+Survey IDs: ['N/02004/30001/TN_001_220626', 'N/02004/30001/TN_001_220626']
+
+Project Names: ['Six laning of Chennai – Tada section of NH5 from Km 11/0 to Km 54/4 in the state of Tamil Nadu to be executed under EPC Mode under NHDP Phase V – Completion of balance work in Km 21.400 to Km 54.400 (Length 33.000 Km) under EPC mode', 'Six laning of Chennai – Tada section of NH5 from Km 11/0 to Km 54/4 in the state of Tamil Nadu to be executed under EPC Mode under NHDP Phase V – Completion of balance work in Km 21.400 to Km 54.400 (Length 33.000 Km) under EPC mode']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Chennai 1', 'Chennai 1']
+
+Spreadsheet Row Index: [1, 178]
+--------------------------------------------------
+Duplicate ID: 17640
+Occurrence Count: 2
+
+Survey IDs: ['N/09048/01001/TN_001_220626', 'N/09048/01001/TN_001_220626']
+
+Project Names: ['Four laning of Pondicherry (km.0/000) to Tindivanam (km. 38/608)section of NH66 (New NH 32)', 'Four laning of Pondicherry (km.0/000) to Tindivanam (km. 38/608)section of NH66 (New NH 32)']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Puducherry', 'Puducherry']
+
+Spreadsheet Row Index: [2, 179]
+--------------------------------------------------
+Duplicate ID: 17641
+Occurrence Count: 2
+
+Survey IDs: ['N/04022/03001/TN_001_230626', 'N/04022/03001/TN_001_230626']
+
+Project Names: ['Tindivanam - Ulundurpet from km 121.00 to km 193.90-RCW', 'Tindivanam - Ulundurpet from km 121.00 to km 193.90-RCW']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Viluppuram', 'Viluppuram']
+
+Spreadsheet Row Index: [3, 180]
+--------------------------------------------------
+Duplicate ID: 17642
+Occurrence Count: 2
+
+Survey IDs: ['N/09041/01001/TN_001_240626', 'N/09041/01001/TN_001_240626']
+
+Project Names: ['Salem - Ulundurpet section from km 0.313 to km 136.670 of NH-68-RCW', 'Salem - Ulundurpet section from km 0.313 to km 136.670 of NH-68-RCW']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Viluppuram', 'Viluppuram']
+
+Spreadsheet Row Index: [4, 181]
+--------------------------------------------------
+Duplicate ID: 17643
+Occurrence Count: 2
+
+Survey IDs: ['N/08049/01001/TN_001_230626', 'N/08049/01001/TN_001_230626']
+
+Project Names: ['Trichirapalli (Km 0.000) to Kallagam (Km. 38.700) of NH-227 in Tamil Nadu-RCW', 'Trichirapalli (Km 0.000) to Kallagam (Km. 38.700) of NH-227 in Tamil Nadu-RCW']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Viluppuram', 'Viluppuram']
+
+Spreadsheet Row Index: [5, 182]
+--------------------------------------------------
+Duplicate ID: 17644
+Occurrence Count: 2
+
+Survey IDs: ['N/08049/02001/TN_001_220626', 'N/08049/02001/TN_001_220626']
+
+Project Names: ['Kallagam (km.38.700) to Meensurutti (Km.98.433) of NH-227 in Tamil Nadu-RCW', 'Kallagam (km.38.700) to Meensurutti (Km.98.433) of NH-227 in Tamil Nadu-RCW']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Viluppuram', 'Viluppuram']
+
+Spreadsheet Row Index: [6, 183]
+--------------------------------------------------
+Duplicate ID: 17645
+Occurrence Count: 2
+
+Survey IDs: ['N/08049/03002/TN_001_220626', 'N/08049/03002/TN_001_220626']
+
+Project Names: ['Meensurutti (Km.98.433) to Chidambaram (Km.129.965) of NH-227-RCW', 'Meensurutti (Km.98.433) to Chidambaram (Km.129.965) of NH-227-RCW']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Viluppuram', 'Viluppuram']
+
+Spreadsheet Row Index: [7, 184]
+--------------------------------------------------
+Duplicate ID: 17648
+Occurrence Count: 2
+
+Survey IDs: ['N/03011/01004/TN_001_030726', 'N/03011/01004/TN_001_030726']
+
+Project Names: ['Four laning of Jittandahalli to Dharmapuri section of NH-844 (PKG-III) from Km.60/100 to Km.94/460 under Bharatmala Pariyojana, Phase-I (National Corridor) on Hybrid Annuity Mode in the States of Tamil Nadu', 'Four laning of Jittandahalli to Dharmapuri section of NH-844 (PKG-III) from Km.60/100 to Km.94/460 under Bharatmala Pariyojana, Phase-I (National Corridor) on Hybrid Annuity Mode in the States of Tamil Nadu']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Krishnagiri', 'Krishnagiri']
+
+Spreadsheet Row Index: [10, 185]
+--------------------------------------------------
+Duplicate ID: 17652
+Occurrence Count: 2
+
+Survey IDs: ['N/02011/05001/TN_001_290626', 'N/02011/05001/TN_001_290626']
+
+Project Names: ['Four laning of km 248/625 to km 292/600 (290/000) of Namakkal to Karur section on NH-7 in the State of Tamil Nadu (Package No. NS-2/ BOT/ TN-03).', 'Four laning of km 248/625 to km 292/600 (290/000) of Namakkal to Karur section on NH-7 in the State of Tamil Nadu (Package No. NS-2/ BOT/ TN-03).']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Salem', 'Salem']
+
+Spreadsheet Row Index: [14, 186]
+--------------------------------------------------
+Duplicate ID: 17653
+Occurrence Count: 2
+
+Survey IDs: ['N/02013/01001/TN_001_290626', 'N/02013/01001/TN_001_290626']
+
+Project Names: ['Four laning of km 0/000 to km 53/525 of Salem to Kumarapalayam section on NH-47 in the State of Tamil Nadu (Package No. NS-2/BOT/TN-06).', 'Four laning of km 0/000 to km 53/525 of Salem to Kumarapalayam section on NH-47 in the State of Tamil Nadu (Package No. NS-2/BOT/TN-06).']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Salem', 'Salem']
+
+Spreadsheet Row Index: [15, 187]
+--------------------------------------------------
+Duplicate ID: 17654
+Occurrence Count: 2
+
+Survey IDs: ['N/02013/02001/TN_001_300626', 'N/02013/02001/TN_001_300626']
+
+Project Names: ['Four laning of km 53/525 to km 102/035 of Kumarapalayam to Chengapalli section on NH-47 in the State of Tamil Nadu (Package No. NS-2/BOT/TN-07).', 'Four laning of km 53/525 to km 102/035 of Kumarapalayam to Chengapalli section on NH-47 in the State of Tamil Nadu (Package No. NS-2/BOT/TN-07).']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Salem', 'Salem']
+
+Spreadsheet Row Index: [16, 188]
+--------------------------------------------------
+Duplicate ID: 17655
+Occurrence Count: 2
+
+Survey IDs: ['N/04022/02006/TN_002_300626', 'N/04022/02006/TN_002_300626']
+
+Project Names: ['Operation & Maintenance and Providing Incident Management Services on Tambaram to Tindivanam Section of NH-32 (Old NH-45) from Km. 28+000 to Km. 121+000 in the State of Tamil Nadu', 'Operation & Maintenance and Providing Incident Management Services on Tambaram to Tindivanam Section of NH-32 (Old NH-45) from Km. 28+000 to Km. 121+000 in the State of Tamil Nadu']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Chengalpattu', 'Chengalpattu']
+
+Spreadsheet Row Index: [17, 189]
+--------------------------------------------------
+Duplicate ID: 17656
+Occurrence Count: 2
+
+Survey IDs: ['N/02004/30001/TN_002_290626', 'N/02004/30001/TN_002_290626']
+
+Project Names: ['Six laning of Chennai – Tada section of NH5 from Km 11/0 to Km 54/4 in the state of Tamil Nadu to be executed under EPC Mode under NHDP Phase V – Completion of balance work in Km 21.400 to Km 54.400 (Length 33.000 Km) under EPC mode', 'Six laning of Chennai – Tada section of NH5 from Km 11/0 to Km 54/4 in the state of Tamil Nadu to be executed under EPC Mode under NHDP Phase V – Completion of balance work in Km 21.400 to Km 54.400 (Length 33.000 Km) under EPC mode']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Chennai 1', 'Chennai 1']
+
+Spreadsheet Row Index: [18, 190]
+--------------------------------------------------
+Duplicate ID: 17657
+Occurrence Count: 2
+
+Survey IDs: ['N/09048/01001/TN_002_290626', 'N/09048/01001/TN_002_290626']
+
+Project Names: ['Four laning of Pondicherry (km.0/000) to Tindivanam (km. 38/608)section of NH66 (New NH 32)', 'Four laning of Pondicherry (km.0/000) to Tindivanam (km. 38/608)section of NH66 (New NH 32)']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Puducherry', 'Puducherry']
+
+Spreadsheet Row Index: [19, 191]
+--------------------------------------------------
+Duplicate ID: 17658
+Occurrence Count: 2
+
+Survey IDs: ['N/04022/03001/TN_002_300626', 'N/04022/03001/TN_002_300626']
+
+Project Names: ['Tindivanam - Ulundurpet from km 121.00 to km 193.90-RCW', 'Tindivanam - Ulundurpet from km 121.00 to km 193.90-RCW']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Viluppuram', 'Viluppuram']
+
+Spreadsheet Row Index: [20, 192]
+--------------------------------------------------
+Duplicate ID: 17660
+Occurrence Count: 2
+
+Survey IDs: ['N/08049/01001/TN_002_300626', 'N/08049/01001/TN_002_300626']
+
+Project Names: ['Trichirapalli (Km 0.000) to Kallagam (Km. 38.700) of NH-227 in Tamil Nadu-RCW', 'Trichirapalli (Km 0.000) to Kallagam (Km. 38.700) of NH-227 in Tamil Nadu-RCW']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Viluppuram', 'Viluppuram']
+
+Spreadsheet Row Index: [22, 193]
+--------------------------------------------------
+Duplicate ID: 17661
+Occurrence Count: 2
+
+Survey IDs: ['N/08049/02001/TN_002_290626', 'N/08049/02001/TN_002_290626']
+
+Project Names: ['Kallagam (km.38.700) to Meensurutti (Km.98.433) of NH-227 in Tamil Nadu-RCW', 'Kallagam (km.38.700) to Meensurutti (Km.98.433) of NH-227 in Tamil Nadu-RCW']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Viluppuram', 'Viluppuram']
+
+Spreadsheet Row Index: [23, 194]
+--------------------------------------------------
+Duplicate ID: 17662
+Occurrence Count: 2
+
+Survey IDs: ['N/08049/03002/TN_002_290626', 'N/08049/03002/TN_002_290626']
+
+Project Names: ['Meensurutti (Km.98.433) to Chidambaram (Km.129.965) of NH-227-RCW', 'Meensurutti (Km.98.433) to Chidambaram (Km.129.965) of NH-227-RCW']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Viluppuram', 'Viluppuram']
+
+Spreadsheet Row Index: [24, 195]
+--------------------------------------------------
+Duplicate ID: 17664
+Occurrence Count: 2
+
+Survey IDs: ['N/02003/06001/TN_002_060726', 'N/02003/06001/TN_002_060726']
+
+Project Names: ['Six laning of Krishnagiri – Walajahpet section of NH-48 (old NH-46) from Km. 0/000 to Km.148/300', 'Six laning of Krishnagiri – Walajahpet section of NH-48 (old NH-46) from Km. 0/000 to Km.148/300']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Krishnagiri', 'Krishnagiri']
+
+Spreadsheet Row Index: [26, 197]
+--------------------------------------------------
+Duplicate ID: 17666
+Occurrence Count: 2
+
+Survey IDs: ['N/04022/01002/TN_002_070726', 'N/04022/01002/TN_002_070726']
+
+Project Names: ['6L of Chennai Bypass Phase - II connecting NH-4 and NH-5 and widening of Chennai Phase -I connecting NH-45 and NH - 4 (From Km 0/00 to Km.32.600)', '6L of Chennai Bypass Phase - II connecting NH-4 and NH-5 and widening of Chennai Phase -I connecting NH-45 and NH - 4 (From Km 0/00 to Km.32.600)']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Chennai 2', 'Chennai 2']
+
+Spreadsheet Row Index: [28, 199]
+--------------------------------------------------
+Duplicate ID: 17667
+Occurrence Count: 2
+
+Survey IDs: ['N/02011/01001/TN_002_070726', 'N/02011/01001/TN_002_070726']
+
+Project Names: ['Four laning of km 94/000 to km 180/000 of Krishnagiri to Thumbipadi section on NH-7 in the State of Tamil Nadu (Package No. NS-2/BOT/TN-01).', 'Four laning of km 94/000 to km 180/000 of Krishnagiri to Thumbipadi section on NH-7 in the State of Tamil Nadu (Package No. NS-2/BOT/TN-01).']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Salem', 'Salem']
+
+Spreadsheet Row Index: [29, 200]
+--------------------------------------------------
+Duplicate ID: 17669
+Occurrence Count: 2
+
+Survey IDs: ['N/02011/05001/TN_002_060726', 'N/02011/05001/TN_002_060726']
+
+Project Names: ['Four laning of km 248/625 to km 292/600 (290/000) of Namakkal to Karur section on NH-7 in the State of Tamil Nadu (Package No. NS-2/ BOT/ TN-03).', 'Four laning of km 248/625 to km 292/600 (290/000) of Namakkal to Karur section on NH-7 in the State of Tamil Nadu (Package No. NS-2/ BOT/ TN-03).']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Salem', 'Salem']
+
+Spreadsheet Row Index: [31, 202]
+--------------------------------------------------
+Duplicate ID: 17670
+Occurrence Count: 2
+
+Survey IDs: ['N/02013/01001/TN_002_080726', 'N/02013/01001/TN_002_080726']
+
+Project Names: ['Four laning of km 0/000 to km 53/525 of Salem to Kumarapalayam section on NH-47 in the State of Tamil Nadu (Package No. NS-2/BOT/TN-06).', 'Four laning of km 0/000 to km 53/525 of Salem to Kumarapalayam section on NH-47 in the State of Tamil Nadu (Package No. NS-2/BOT/TN-06).']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Salem', 'Salem']
+
+Spreadsheet Row Index: [32, 203]
+--------------------------------------------------
+Duplicate ID: 17672
+Occurrence Count: 2
+
+Survey IDs: ['N/04022/02006/TN_003_090726', 'N/04022/02006/TN_003_090726']
+
+Project Names: ['Operation & Maintenance and Providing Incident Management Services on Tambaram to Tindivanam Section of NH-32 (Old NH-45) from Km. 28+000 to Km. 121+000 in the State of Tamil Nadu', 'Operation & Maintenance and Providing Incident Management Services on Tambaram to Tindivanam Section of NH-32 (Old NH-45) from Km. 28+000 to Km. 121+000 in the State of Tamil Nadu']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Chengalpattu', 'Chengalpattu']
+
+Spreadsheet Row Index: [34, 205]
+--------------------------------------------------
+Duplicate ID: 17674
+Occurrence Count: 2
+
+Survey IDs: ['N/09048/01001/TN_003_060726', 'N/09048/01001/TN_003_060726']
+
+Project Names: ['Four laning of Pondicherry (km.0/000) to Tindivanam (km. 38/608)section of NH66 (New NH 32)', 'Four laning of Pondicherry (km.0/000) to Tindivanam (km. 38/608)section of NH66 (New NH 32)']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Puducherry', 'Puducherry']
+
+Spreadsheet Row Index: [35, 207]
+--------------------------------------------------
+Duplicate ID: 17675
+Occurrence Count: 2
+
+Survey IDs: ['N/04022/03001/TN_003_080726', 'N/04022/03001/TN_003_080726']
+
+Project Names: ['Tindivanam - Ulundurpet from km 121.00 to km 193.90-RCW', 'Tindivanam - Ulundurpet from km 121.00 to km 193.90-RCW']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Viluppuram', 'Viluppuram']
+
+Spreadsheet Row Index: [36, 208]
+--------------------------------------------------
+Duplicate ID: 17676
+Occurrence Count: 2
+
+Survey IDs: ['N/09041/01001/TN_003_090726', 'N/09041/01001/TN_003_090726']
+
+Project Names: ['Salem - Ulundurpet section from km 0.313 to km 136.670 of NH-68-RCW', 'Salem - Ulundurpet section from km 0.313 to km 136.670 of NH-68-RCW']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Viluppuram', 'Viluppuram']
+
+Spreadsheet Row Index: [37, 209]
+--------------------------------------------------
+Duplicate ID: 17677
+Occurrence Count: 2
+
+Survey IDs: ['N/08049/01001/TN_003_070726', 'N/08049/01001/TN_003_070726']
+
+Project Names: ['Trichirapalli (Km 0.000) to Kallagam (Km. 38.700) of NH-227 in Tamil Nadu-RCW', 'Trichirapalli (Km 0.000) to Kallagam (Km. 38.700) of NH-227 in Tamil Nadu-RCW']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Viluppuram', 'Viluppuram']
+
+Spreadsheet Row Index: [38, 210]
+--------------------------------------------------
+Duplicate ID: 17678
+Occurrence Count: 2
+
+Survey IDs: ['N/08049/02001/TN_003_060726', 'N/08049/02001/TN_003_060726']
+
+Project Names: ['Kallagam (km.38.700) to Meensurutti (Km.98.433) of NH-227 in Tamil Nadu-RCW', 'Kallagam (km.38.700) to Meensurutti (Km.98.433) of NH-227 in Tamil Nadu-RCW']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Viluppuram', 'Viluppuram']
+
+Spreadsheet Row Index: [39, 211]
+--------------------------------------------------
+Duplicate ID: 17679
+Occurrence Count: 2
+
+Survey IDs: ['N/08049/03002/TN_003_060726', 'N/08049/03002/TN_003_060726']
+
+Project Names: ['Meensurutti (Km.98.433) to Chidambaram (Km.129.965) of NH-227-RCW', 'Meensurutti (Km.98.433) to Chidambaram (Km.129.965) of NH-227-RCW']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Viluppuram', 'Viluppuram']
+
+Spreadsheet Row Index: [40, 212]
+--------------------------------------------------
+Duplicate ID: 17680
+Occurrence Count: 2
+
+Survey IDs: ['N/02003/05011/TN_003', 'N/02003/05011/TN_003']
+
+Project Names: ['Six laning of Hosur to Krishnagiri section of NH-44 (old NH-7) from Km. 33/130 to Km.93/000 in the state of Tamilnadu', 'Six laning of Hosur to Krishnagiri section of NH-44 (old NH-7) from Km. 33/130 to Km.93/000 in the state of Tamilnadu']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Krishnagiri', 'Krishnagiri']
+
+Spreadsheet Row Index: [41, 213]
+--------------------------------------------------
+Duplicate ID: 17681
+Occurrence Count: 2
+
+Survey IDs: ['N/02003/06001/TN_003', 'N/02003/06001/TN_003']
+
+Project Names: ['Six laning of Krishnagiri – Walajahpet section of NH-48 (old NH-46) from Km. 0/000 to Km.148/300', 'Six laning of Krishnagiri – Walajahpet section of NH-48 (old NH-46) from Km. 0/000 to Km.148/300']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Krishnagiri', 'Krishnagiri']
+
+Spreadsheet Row Index: [42, 214]
+--------------------------------------------------
+Duplicate ID: 17682
+Occurrence Count: 2
+
+Survey IDs: ['N/03011/01004/TN_003', 'N/03011/01004/TN_003']
+
+Project Names: ['Four laning of Jittandahalli to Dharmapuri section of NH-844 (PKG-III) from Km.60/100 to Km.94/460 under Bharatmala Pariyojana, Phase-I (National Corridor) on Hybrid Annuity Mode in the States of Tamil Nadu', 'Four laning of Jittandahalli to Dharmapuri section of NH-844 (PKG-III) from Km.60/100 to Km.94/460 under Bharatmala Pariyojana, Phase-I (National Corridor) on Hybrid Annuity Mode in the States of Tamil Nadu']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Krishnagiri', 'Krishnagiri']
+
+Spreadsheet Row Index: [43, 215]
+--------------------------------------------------
+Duplicate ID: 17683
+Occurrence Count: 2
+
+Survey IDs: ['N/04022/01002/TN_003', 'N/04022/01002/TN_003']
+
+Project Names: ['6L of Chennai Bypass Phase - II connecting NH-4 and NH-5 and widening of Chennai Phase -I connecting NH-45 and NH - 4 (From Km 0/00 to Km.32.600)', '6L of Chennai Bypass Phase - II connecting NH-4 and NH-5 and widening of Chennai Phase -I connecting NH-45 and NH - 4 (From Km 0/00 to Km.32.600)']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Chennai 2', 'Chennai 2']
+
+Spreadsheet Row Index: [44, 216]
+--------------------------------------------------
+Duplicate ID: 17684
+Occurrence Count: 2
+
+Survey IDs: ['N/02011/01001/TN_003', 'N/02011/01001/TN_003']
+
+Project Names: ['Four laning of km 94/000 to km 180/000 of Krishnagiri to Thumbipadi section on NH-7 in the State of Tamil Nadu (Package No. NS-2/BOT/TN-01).', 'Four laning of km 94/000 to km 180/000 of Krishnagiri to Thumbipadi section on NH-7 in the State of Tamil Nadu (Package No. NS-2/BOT/TN-01).']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Salem', 'Salem']
+
+Spreadsheet Row Index: [45, 217]
+--------------------------------------------------
+Duplicate ID: 17685
+Occurrence Count: 2
+
+Survey IDs: ['N/02011/02001/TN_002', 'N/02011/02001/TN_002']
+
+Project Names: ['Four laning of km 180/000 to km 248/625 of Thumbipadi to Namakkal section on NH-7 in the State of Tamil Nadu (Package No. NS-2/ BOT/ TN-02).', 'Four laning of km 180/000 to km 248/625 of Thumbipadi to Namakkal section on NH-7 in the State of Tamil Nadu (Package No. NS-2/ BOT/ TN-02).']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Salem', 'Salem']
+
+Spreadsheet Row Index: [30, 218]
+--------------------------------------------------
+Duplicate ID: 17686
+Occurrence Count: 2
+
+Survey IDs: ['N/02011/05001/TN_003', 'N/02011/05001/TN_003']
+
+Project Names: ['Four laning of km 248/625 to km 292/600 (290/000) of Namakkal to Karur section on NH-7 in the State of Tamil Nadu (Package No. NS-2/ BOT/ TN-03).', 'Four laning of km 248/625 to km 292/600 (290/000) of Namakkal to Karur section on NH-7 in the State of Tamil Nadu (Package No. NS-2/ BOT/ TN-03).']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Salem', 'Salem']
+
+Spreadsheet Row Index: [47, 219]
+--------------------------------------------------
+Duplicate ID: 17687
+Occurrence Count: 2
+
+Survey IDs: ['N/02013/01001/TN_003', 'N/02013/01001/TN_003']
+
+Project Names: ['Four laning of km 0/000 to km 53/525 of Salem to Kumarapalayam section on NH-47 in the State of Tamil Nadu (Package No. NS-2/BOT/TN-06).', 'Four laning of km 0/000 to km 53/525 of Salem to Kumarapalayam section on NH-47 in the State of Tamil Nadu (Package No. NS-2/BOT/TN-06).']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Salem', 'Salem']
+
+Spreadsheet Row Index: [48, 220]
+--------------------------------------------------
+Duplicate ID: 17688
+Occurrence Count: 2
+
+Survey IDs: ['N/02013/02001/TN_003', 'N/02013/02001/TN_003']
+
+Project Names: ['Four laning of km 53/525 to km 102/035 of Kumarapalayam to Chengapalli section on NH-47 in the State of Tamil Nadu (Package No. NS-2/BOT/TN-07).', 'Four laning of km 53/525 to km 102/035 of Kumarapalayam to Chengapalli section on NH-47 in the State of Tamil Nadu (Package No. NS-2/BOT/TN-07).']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Salem', 'Salem']
+
+Spreadsheet Row Index: [49, 221]
+--------------------------------------------------
+Duplicate ID: 17689
+Occurrence Count: 2
+
+Survey IDs: ['N/04022/02006/TN_004', 'N/04022/02006/TN_004']
+
+Project Names: ['Operation & Maintenance and Providing Incident Management Services on Tambaram to Tindivanam Section of NH-32 (Old NH-45) from Km. 28+000 to Km. 121+000 in the State of Tamil Nadu', 'Operation & Maintenance and Providing Incident Management Services on Tambaram to Tindivanam Section of NH-32 (Old NH-45) from Km. 28+000 to Km. 121+000 in the State of Tamil Nadu']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Chengalpattu', 'Chengalpattu']
+
+Spreadsheet Row Index: [50, 222]
+--------------------------------------------------
+Duplicate ID: 17691
+Occurrence Count: 2
+
+Survey IDs: ['N/09048/01001/TN_004', 'N/09048/01001/TN_004']
+
+Project Names: ['Four laning of Pondicherry (km.0/000) to Tindivanam (km. 38/608)section of NH66 (New NH 32)', 'Four laning of Pondicherry (km.0/000) to Tindivanam (km. 38/608)section of NH66 (New NH 32)']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Puducherry', 'Puducherry']
+
+Spreadsheet Row Index: [52, 224]
+--------------------------------------------------
+Duplicate ID: 17692
+Occurrence Count: 2
+
+Survey IDs: ['N/04022/03001/TN_004', 'N/04022/03001/TN_004']
+
+Project Names: ['Tindivanam - Ulundurpet from km 121.00 to km 193.90-RCW', 'Tindivanam - Ulundurpet from km 121.00 to km 193.90-RCW']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Viluppuram', 'Viluppuram']
+
+Spreadsheet Row Index: [53, 225]
+--------------------------------------------------
+Duplicate ID: 17693
+Occurrence Count: 2
+
+Survey IDs: ['N/09041/01001/TN_004', 'N/09041/01001/TN_004']
+
+Project Names: ['Salem - Ulundurpet section from km 0.313 to km 136.670 of NH-68-RCW', 'Salem - Ulundurpet section from km 0.313 to km 136.670 of NH-68-RCW']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Viluppuram', 'Viluppuram']
+
+Spreadsheet Row Index: [54, 226]
+--------------------------------------------------
+Duplicate ID: 17694
+Occurrence Count: 2
+
+Survey IDs: ['N/08049/01001/TN_004', 'N/08049/01001/TN_004']
+
+Project Names: ['Trichirapalli (Km 0.000) to Kallagam (Km. 38.700) of NH-227 in Tamil Nadu-RCW', 'Trichirapalli (Km 0.000) to Kallagam (Km. 38.700) of NH-227 in Tamil Nadu-RCW']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Viluppuram', 'Viluppuram']
+
+Spreadsheet Row Index: [55, 227]
+--------------------------------------------------
+Duplicate ID: 17695
+Occurrence Count: 2
+
+Survey IDs: ['N/08049/02001/TN_004', 'N/08049/02001/TN_004']
+
+Project Names: ['Kallagam (km.38.700) to Meensurutti (Km.98.433) of NH-227 in Tamil Nadu-RCW', 'Kallagam (km.38.700) to Meensurutti (Km.98.433) of NH-227 in Tamil Nadu-RCW']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Viluppuram', 'Viluppuram']
+
+Spreadsheet Row Index: [56, 228]
+--------------------------------------------------
+Duplicate ID: 17696
+Occurrence Count: 2
+
+Survey IDs: ['N/08049/03002/TN_004', 'N/08049/03002/TN_004']
+
+Project Names: ['Meensurutti (Km.98.433) to Chidambaram (Km.129.965) of NH-227-RCW', 'Meensurutti (Km.98.433) to Chidambaram (Km.129.965) of NH-227-RCW']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Viluppuram', 'Viluppuram']
+
+Spreadsheet Row Index: [57, 229]
+--------------------------------------------------
+Duplicate ID: 17697
+Occurrence Count: 2
+
+Survey IDs: ['N/02013/04001/TN_001', 'N/02013/04001/TN_001']
+
+Project Names: ['Chengapalli (km 102.035) to Neelambur (Km144.680) and Madukkarai (Km 170.880) to Walayar (K183.010) (Package No. NS-2/BOT/TN-08)', 'Chengapalli (km 102.035) to Neelambur (Km144.680) and Madukkarai (Km 170.880) to Walayar (K183.010) (Package No. NS-2/BOT/TN-08)']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Coimbatore', 'Coimbatore']
+
+Spreadsheet Row Index: [58, 230]
+--------------------------------------------------
+Duplicate ID: 17698
+Occurrence Count: 2
+
+Survey IDs: ['N/08042/01002/TN_001', 'N/08042/01002/TN_001']
+
+Project Names: ['Pollachi to Coimbatore Section from km. 123.55 to km. 150.40 of Dindigul - Bangalore Road', 'Pollachi to Coimbatore Section from km. 123.55 to km. 150.40 of Dindigul - Bangalore Road']
+
+Zone: ['D', 'D']
+
+RO: ['Copy of RO Chennai', 'Chennai']
+
+PIU: ['Coimbatore', 'Coimbatore']
+
+Spreadsheet Row Index: [59, 231]
+--------------------------------------------------
+Duplicate ID: 17830
+Occurrence Count: 2
+
+Survey IDs: ['N/09083/01001/ML_002_010726', 'N/09083/01001/ML_002_010726']
+
+Project Names: ['4 of Jorabat Shillong (Barapani) section from 0.000 to km 61.800 of Old NH-40', '4 of Jorabat Shillong (Barapani) section from 0.000 to km 61.800 of Old NH-40']
+
+Zone: ['E', 'E']
+
+RO: ['Guwahati', 'Guwahati']
+
+PIU: ['Shillong', 'Shillong']
+
+Spreadsheet Row Index: [300, 310]
+--------------------------------------------------

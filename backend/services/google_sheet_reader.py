@@ -298,7 +298,32 @@ def fetch_metadata_api() -> Tuple[str, List[str]]:
 
     spreadsheet_name = sheet_metadata.get("properties", {}).get("title", "NHAI Survey Spreadsheet")
     sheets = sheet_metadata.get("sheets", [])
-    sheet_names = [s.get("properties", {}).get("title") for s in sheets if s.get("properties", {}).get("title")]
+    raw_sheet_names = [s.get("properties", {}).get("title") for s in sheets if s.get("properties", {}).get("title")]
+    
+    sheet_names = []
+    skipped_sheets = []
+    for title in raw_sheet_names:
+        if title.startswith("Copy of "):
+            skipped_sheets.append(title)
+        else:
+            sheet_names.append(title)
+            
+    print("\n==================================================")
+    print("GOOGLE SHEET LOADER")
+    print("==================================================")
+    print("\nProcessing sheets:")
+    for s in sheet_names:
+        print(f"✓ {s}")
+        
+    if skipped_sheets:
+        print("\nSkipped duplicate sheets:")
+        for s in skipped_sheets:
+            print(f"✗ {s}")
+            
+    print(f"\nTotal processed sheets: {len(sheet_names)}")
+    print(f"Total skipped sheets: {len(skipped_sheets)}")
+    print("==================================================\n")
+
     return spreadsheet_name, sheet_names
 
 def fetch_worksheet_api(sheet_name: str) -> pd.DataFrame:

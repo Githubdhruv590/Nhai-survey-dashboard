@@ -1,0 +1,4 @@
+Row Number (Appx),RO,PIU,Project Name,Survey ID,UPC Code,Scheduled Survey Date,Validation Reason
+0,Vijayawada,,,ORIGINAL,VIJ_001,2026-07-06,Duplicate Business Key
+1,Vijayawada,,,DUP_1,VIJ_001,2026-07-06,Duplicate Business Key
+2,Vijayawada,,,DUP_2,VIJ_001,2026-07-06,Duplicate Business Key

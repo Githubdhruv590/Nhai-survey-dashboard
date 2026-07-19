@@ -25,12 +25,27 @@ router = APIRouter(prefix="/api")
 # --- ENDPOINTS ---
 
 @router.get("/filters", response_model=FilterOptions)
-def get_filters(db: Session = Depends(get_db)):
+def get_filters(
+    zone: Optional[str] = Query(None),
+    ro: Optional[str] = Query(None),
+    db: Session = Depends(get_db)
+):
     try:
         # Get unique zones, ros, pius, statuses from DB
         zones = [r[0] for r in db.query(SurveyMaster.zone).distinct().all() if r[0]]
-        ros = [r[0] for r in db.query(SurveyMaster.ro_name).distinct().all() if r[0]]
-        pius = [r[0] for r in db.query(SurveyMaster.piu_name).distinct().all() if r[0]]
+        
+        ro_query = db.query(SurveyMaster.ro_name).distinct()
+        if zone:
+            ro_query = ro_query.filter(SurveyMaster.zone.ilike(zone))
+        ros = [r[0] for r in ro_query.all() if r[0]]
+        
+        piu_query = db.query(SurveyMaster.piu_name).distinct()
+        if zone:
+            piu_query = piu_query.filter(SurveyMaster.zone.ilike(zone))
+        if ro:
+            piu_query = piu_query.filter(SurveyMaster.ro_name.ilike(ro))
+        pius = [r[0] for r in piu_query.all() if r[0]]
+        
         statuses = [r[0] for r in db.query(SurveyMaster.survey_status).distinct().all() if r[0]]
         
         # Dynamically build Year/Month/Week hierarchy from SurveyMaster dates
@@ -115,11 +130,21 @@ def get_dashboard(
                     scheduled=0,
                     completed=0,
                     pending=0,
+                    cancelled=0,
                     completion_rate=0.0,
+                    completed_surveys=0,
+                    reports_expected=0,
                     reports_received=0,
-                    on_time=0,
-                    delayed=0,
-                    average_delay=0.0
+                    reports_on_time=0,
+                    reports_delayed=0,
+                    average_delay=0.0,
+                    # Legacy defaults
+                    total_scheduled=0,
+                    on_time_reports=0,
+                    delayed_reports=0,
+                    pending_reports=0,
+                    maximum_delay=0.0,
+                    total_surveyed_length=0.0
                 ),
                 zone_table=[],
                 charts=ChartData(completion_pie=[], zone_comparison=[], weekly_trend=[], delay_distribution=[], provider_performance=[])

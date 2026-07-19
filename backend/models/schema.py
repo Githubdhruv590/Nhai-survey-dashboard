@@ -80,3 +80,4 @@ class RefreshHistory(Base):
     skipped_rows = Column(Integer, default=0)
     failed_rows = Column(Integer, default=0)
     error_message = Column(Text, nullable=True)
+    trigger_source = Column(String, default="Manual")

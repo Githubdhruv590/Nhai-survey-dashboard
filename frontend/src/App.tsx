@@ -29,7 +29,7 @@ function App() {
 
   // 4. React Query Queries & Mutations
   const { data: connStatus, isLoading: isLoadingStatus } = useConnectionStatus();
-  const { data: filterOptions, isLoading: isLoadingOptions } = useFilters();
+  const { data: filterOptions, isLoading: isLoadingOptions } = useFilters({ zone: filters.zone, ro: filters.ro });
   
   const dashboardQuery = useDashboard(filters);
   const { data: dashboardData, isLoading: isLoadingDashboard, isFetching: isFetchingDashboard, error: dashboardError, isError: isDashboardError } = dashboardQuery;

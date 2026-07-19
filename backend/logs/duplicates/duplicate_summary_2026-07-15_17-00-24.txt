@@ -1,0 +1,15 @@
+Duplicate ID: 17830
+Occurrence Count: 2
+
+Survey IDs: ['N/09083/01001/ML_002_010726', 'N/09083/01001/ML_002_010726']
+
+Project Names: ['4 of Jorabat Shillong (Barapani) section from 0.000 to km 61.800 of Old NH-40', '4 of Jorabat Shillong (Barapani) section from 0.000 to km 61.800 of Old NH-40']
+
+Zone: ['E', 'E']
+
+RO: ['Guwahati', 'Guwahati']
+
+PIU: ['Shillong', 'Shillong']
+
+Spreadsheet Row Index: [238, 248]
+--------------------------------------------------

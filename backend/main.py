@@ -1,5 +1,8 @@
 import os
 import logging
+from contextlib import asynccontextmanager
+from apscheduler.schedulers.background import BackgroundScheduler
+from pytz import timezone
 import uvicorn
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,10 +16,51 @@ from backend.services.db import engine, get_db
 logger = logging.getLogger("nhai_dashboard")
 logging.basicConfig(level=logging.INFO)
 
+scheduler = None
+
+def scheduled_refresh_job():
+    from backend.services.db import SessionLocal
+    from backend.services.refresh_pipeline import run_refresh_pipeline, ConcurrentRefreshException
+    db = SessionLocal()
+    try:
+        run_refresh_pipeline(db, trigger_source="Scheduled")
+    except ConcurrentRefreshException:
+        logger.info("Scheduled refresh skipped: Another refresh is already running.")
+    except Exception as e:
+        logger.error(f"Scheduled refresh failed: {e}")
+    finally:
+        db.close()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    logger.info("Initializing NHAI Survey Dashboard Backend...")
+    # Initialize DB tables
+    Base.metadata.create_all(bind=engine)
+    logger.info("Database tables initialized successfully.")
+    
+    global scheduler
+    scheduler = BackgroundScheduler(timezone=timezone('Asia/Kolkata'))
+    # Run at 12:05 AM and 12:05 PM IST
+    scheduler.add_job(scheduled_refresh_job, 'cron', hour=0, minute=5)
+    scheduler.add_job(scheduled_refresh_job, 'cron', hour=12, minute=5)
+    import datetime
+    scheduler.add_job(scheduled_refresh_job, 'date', run_date=datetime.datetime.now(timezone('Asia/Kolkata')) + datetime.timedelta(seconds=15))
+    scheduler.start()
+    logger.info("APScheduler started with jobs for 12:05 AM and 12:05 PM IST.")
+    
+    yield
+    
+    # Shutdown
+    if scheduler:
+        scheduler.shutdown()
+        logger.info("APScheduler stopped.")
+
 app = FastAPI(
     title="NHAI Executive Survey Monitoring Dashboard API",
     version="4.0.0",
-    description="API for dynamically reading road survey information from PostgreSQL Database."
+    description="API for dynamically reading road survey information from PostgreSQL Database.",
+    lifespan=lifespan
 )
 
 # Configure CORS for local development
@@ -31,44 +75,25 @@ app.add_middleware(
 # Include Dashboard Router
 app.include_router(dashboard.router)
 
-@app.on_event("startup")
-def startup_db():
-    logger.info("Initializing NHAI Survey Dashboard Backend...")
-    # Initialize DB tables
-    Base.metadata.create_all(bind=engine)
-    logger.info("Database tables initialized successfully.")
+@app.get("/scheduler_status")
+def scheduler_status():
+    global scheduler
+    if not scheduler:
+        return {"status": "not running", "jobs": []}
     
-    print("\n" + "="*40)
-    print("FRONTEND SERVING DIAGNOSTICS")
-    frontend_dist = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "dist")
-    print(f"1. Absolute frontend_dist path: {os.path.abspath(frontend_dist)}")
-    exists = os.path.exists(frontend_dist)
-    print(f"2. os.path.exists(frontend_dist): {exists}")
-    if not exists:
-        print(f"3. os.getcwd(): {os.getcwd()}")
-    print(f"4. os.path.dirname(__file__): {os.path.dirname(__file__)}")
-    
-    parent_dir = os.path.dirname(os.path.dirname(__file__))
-    print(f"5a. Contents of parent directory ({parent_dir}):")
+    jobs = []
     try:
-        print(os.listdir(parent_dir))
+        for job in scheduler.get_jobs():
+            jobs.append({
+                "id": job.id,
+                "name": job.name,
+                "next_run_time": str(job.next_run_time),
+                "trigger": str(job.trigger)
+            })
     except Exception as e:
-        print(f"Error reading parent dir: {e}")
+        return {"status": "error", "message": str(e)}
         
-    frontend_dir = os.path.join(parent_dir, "frontend")
-    print(f"5b. Contents of frontend directory ({frontend_dir}):")
-    try:
-        print(os.listdir(frontend_dir))
-    except Exception as e:
-        print(f"Error reading frontend dir: {e}")
-        
-    index_html = os.path.join(frontend_dist, "index.html")
-    print(f"6. Final path where index.html is expected: {os.path.abspath(index_html)}")
-    print("="*40 + "\n")
-    
-    # We do NOT run an automatic refresh here. 
-    # Data is refreshed exclusively via POST /api/refresh.
-
+    return {"status": "running", "jobs": jobs, "pid": os.getpid()}
 @app.get("/health")
 def health_check(db = Depends(get_db)):
     """
@@ -83,7 +108,7 @@ def health_check(db = Depends(get_db)):
         
         from datetime import timezone, timedelta
         # Get last sync time
-        last_refresh = db.query(RefreshHistory).filter(RefreshHistory.status == 'SUCCESS').order_by(desc(RefreshHistory.ended_at)).first()
+        last_refresh = db.query(RefreshHistory).filter(RefreshHistory.status.in_(['SUCCESS', 'SUCCESS WITH WARNINGS'])).order_by(desc(RefreshHistory.ended_at)).first()
         if last_refresh and last_refresh.ended_at:
             # Render servers are in UTC. Convert explicitly to IST (UTC+05:30)
             utc_dt = last_refresh.ended_at.replace(tzinfo=timezone.utc)
@@ -92,8 +117,8 @@ def health_check(db = Depends(get_db)):
         else:
             last_sync = "Never"
         
-        # Get surveys loaded
-        survey_count = db.query(SurveyMaster).count()
+        # Get active surveys loaded
+        survey_count = db.query(SurveyMaster).filter(SurveyMaster.survey_status != 'Deleted').count()
         
     except Exception as e:
         db_status = f"Disconnected: {str(e)}"

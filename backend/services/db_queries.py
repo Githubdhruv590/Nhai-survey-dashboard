@@ -1,8 +1,53 @@
 import json
 from typing import Tuple, Dict, Any, List
 from sqlalchemy.orm import Session
+from sqlalchemy import or_, and_, extract
+import logging
+import pandas as pd
 from backend.models.schema import DashboardCache, SurveyMaster
 from backend.models.models import KPIMetrics, ZoneTableRow, ROTableRow, PIUTableRow, ProjectTableRow, ChartData, SurveyRecordDetail
+
+logger = logging.getLogger("nhai_dashboard")
+
+# Map DB columns back to what the summary_engine expects
+DB_TO_PANDAS_MAP = {
+    "zone": "Zone",
+    "ro_name": "RO Name",
+    "piu_name": "PIU Name",
+    "project_name": "Project Name",
+    "upc_code": "UPC Code",
+    "das_provider": "DAS Provider Name",
+    "survey_status": "Survey Status",
+    "report_status": "Report Submission Status",
+    "scheduled_survey_date": "Scheduled Survey Date",
+    "actual_survey_date": "Actual Survey Date",
+    "raw_data_submission_date": "Raw Data Submission Date",
+    "report_submission_scheduled_date": "Report Submission Scheduled Date",
+    "report_submission_actual_date": "Report Submission Actual Date",
+    "discrepancy_date": "Discrepancy Date",
+    "final_report_submission_scheduled_date": "Final Report Submission Scheduled Date",
+    "final_report_submission_actual_date": "Final Report Submission Actual Date",
+    "interim_acceptance_date": "Interim Acceptance Date",
+    "validation_date": "Report Validation Date",
+    "mcw_length_surveyed": "MCW Length Surveyed",
+    "sr_length_surveyed": "SR Length Surveyed",
+    "delay_d1": "Delay (D1)",
+    "delay_d2": "Delay (D2)",
+    "total_delay": "Total Delay",
+    "ir_count": "IR Count",
+    "defects_reported": "Total Defects Reported",
+    "precision_score": "Precision Score",
+    "recall_score": "Recall Score",
+    "remarks": "Remarks",
+    "comments": "Comments",
+    "survey_form_link": "Survey Form Link",
+    "raw_video_link": "Raw Video Link",
+    "processed_video_link": "Processed Video Link",
+    "final_survey_report_link": "Final Survey Report Link",
+    "assessed_report_link": "Assessed Report Link",
+    "piu_report_link": "PIU Report Link",
+    "survey_id": "Survey ID"
+}
 
 def get_dashboard_unfiltered(db: Session) -> dict:
     global_dashboard = db.query(DashboardCache).filter_by(cache_key="global_dashboard").first()
@@ -38,6 +83,9 @@ def build_filter_query(db: Session, **kwargs):
             (SurveyMaster.survey_id.ilike(search_term))
         )
         
+    # Exclude soft-deleted surveys
+    query = query.filter(SurveyMaster.survey_status != 'Deleted')
+        
     # Note: For Year/Month/Week, we'll need either date parsing or columns in survey_master.
     # Currently we didn't add year/month/week columns to survey_master. 
     # For a full implementation, we might need to query and filter in pandas, or extract date parts in SQL.
@@ -63,79 +111,33 @@ def fetch_filtered_dataframe(db: Session, **kwargs) -> "pd.DataFrame":
                 df = df[df["Scheduled Survey Date parsed"].dt.strftime('%B').str.lower() == str(kwargs['month']).lower()]
             if kwargs.get('week_label'):
                 week_label = kwargs['week_label']
-                print("\n" + "="*40)
-                print("WEEK FILTER DIAGNOSTICS")
-                print(f"1. received week_label: {week_label}")
-                rows_before = len(df)
-                print(f"4. dataframe rows before week filtering: {rows_before}")
+                from backend.services.week_engine import parse_date, get_week_boundaries, get_week_label, filter_by_week
                 
-                from backend.services.week_engine import get_unique_weeks, filter_by_week
-                # Extract the boundaries from the current dataframe to resolve the label
-                unique_weeks = get_unique_weeks(df, "scheduled_survey_date")
-                target_week = next((w for w in unique_weeks if w["label"] == week_label), None)
+                # Fetch ALL unique dates from DB to resolve the label reliably
+                # regardless of current dataframe filters
+                dates_raw = db.query(SurveyMaster.scheduled_survey_date).distinct().all()
+                target_start = None
+                target_end = None
                 
-                if target_week:
-                    start_str = target_week["start"]
-                    end_str = target_week["end"]
-                    print(f"2. computed start_date: {start_str}")
-                    print(f"3. computed end_date: {end_str}")
-                    df = filter_by_week(df, start_str, end_str, "scheduled_survey_date")
+                for r in dates_raw:
+                    dt = parse_date(r[0])
+                    if dt:
+                        mon, sun = get_week_boundaries(dt)
+                        label = get_week_label(mon, sun)
+                        if label == week_label:
+                            target_start = mon.strftime('%Y-%m-%d')
+                            target_end = sun.strftime('%Y-%m-%d')
+                            break
+                            
+                if target_start and target_end:
+                    df = filter_by_week(df, target_start, target_end, "scheduled_survey_date")
                 else:
-                    print("2. computed start_date: None")
-                    print("3. computed end_date: None")
-                    print("Reason for failure: Could not map week_label to start/end dates. Returning empty.")
-                    # If the week doesn't map to anything, it means 0 surveys.
-                    df = df.iloc[0:0] 
-                    
-                rows_after = len(df)
-                print(f"5. dataframe rows after week filtering: {rows_after}")
-                
-                if rows_before == rows_after and rows_before > 0:
-                    print("6. Note: Row count identical before/after week filter. Reason: The earlier year/month filters already narrowed the dataframe exactly to this single week's rows, or the week contains all remaining data.")
-                print("="*40 + "\n")
+                    df = df.iloc[0:0]
                 
         except Exception as e:
             print(f"Date filter error: {e}")
             pass
             
     # Remap DB columns back to what the summary_engine expects
-    DB_TO_PANDAS_MAP = {
-        "zone": "Zone",
-        "ro_name": "RO Name",
-        "piu_name": "PIU Name",
-        "project_name": "Project Name",
-        "upc_code": "UPC Code",
-        "das_provider": "DAS Provider Name",
-        "survey_status": "Survey Status",
-        "report_status": "Report Submission Status",
-        "scheduled_survey_date": "Scheduled Survey Date",
-        "actual_survey_date": "Actual Survey Date",
-        "raw_data_submission_date": "Raw Data Submission Date",
-        "report_submission_scheduled_date": "Report Submission Scheduled Date",
-        "report_submission_actual_date": "Report Submission Actual Date",
-        "discrepancy_date": "Discrepancy Date",
-        "final_report_submission_scheduled_date": "Final Report Submission Scheduled Date",
-        "final_report_submission_actual_date": "Final Report Submission Actual Date",
-        "interim_acceptance_date": "Interim Acceptance Date",
-        "validation_date": "Report Validation Date",
-        "mcw_length_surveyed": "MCW Length Surveyed",
-        "sr_length_surveyed": "SR Length Surveyed",
-        "delay_d1": "Delay (D1)",
-        "delay_d2": "Delay (D2)",
-        "total_delay": "Total Delay",
-        "ir_count": "IR Count",
-        "defects_reported": "Total Defects Reported",
-        "precision_score": "Precision Score",
-        "recall_score": "Recall Score",
-        "remarks": "Remarks",
-        "comments": "Comments",
-        "survey_form_link": "Survey Form Link",
-        "raw_video_link": "Raw Video Link",
-        "processed_video_link": "Processed Video Link",
-        "final_survey_report_link": "Final Survey Report Link",
-        "assessed_report_link": "Assessed Report Link",
-        "piu_report_link": "PIU Report Link",
-        "survey_id": "Survey ID"
-    }
     df = df.rename(columns=DB_TO_PANDAS_MAP)
     return df
